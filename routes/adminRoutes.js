@@ -32,7 +32,9 @@ const carouselStorage = multer.diskStorage({
 
 // router.post('/register',adminController.register)
 router.post('/login',adminController.adminLogin);
-router.post('/addCarousel', carouselImage.single('image'),adminAuth,adminController.addCarousel)
+router.post('/addCarousel', carouselImage.single('image'),adminAuth,adminController.addCarousel);
+router.post('/add-calender-events',adminAuth,adminController.addCalenderEvents);
+router.post('/add-crms',adminAuth,adminController.addCrm);
 
 router.get('/getCarousel',adminController.getCarousel)
 

@@ -6,6 +6,8 @@ const Cache = require('../middlewares/Cache');
 const catchTime = 600;
 const fs = require('fs');
 const path = require('path');
+const Calender = require('../models/Calender');
+const crms = require('../models/crmModel');
 
 // register
 // const register = async (req, res) => {
@@ -172,6 +174,49 @@ const updateCarousel = async (req, res) => {
     }
 };
 
+const addCalenderEvents =async(req,res)=>{
+    try {
+        const {title,description,date} = req.body;
+       if(!title||!description||!date){
+        return res.status(400).json({ error: " fields not found" });
+       } 
+       
+       const calenderEvents = await Calender.create({
+        title,
+        description,
+        date
+        
+    })
+    res.status(200).json(calenderEvents);
+
+    } catch (error) {
+       console.log("error");
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+};
+
+const addCrm =async (req,res)=>{
+    try {
+        const {name,email,password,phoneno,
+            dateofBirth,program,guardian,joingdate} =req.body;
+        
+         const crmDetails =  await crms.create({
+            name,
+            email,
+            password,
+            phoneno,
+            dateofBirth,
+            program,
+            guardian,
+            joingdate
+         });
+         res.status(200).json(crmDetails);
+    } catch (error) {
+        console.log("error");
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+};
+
 
 
 module.exports = {
@@ -181,4 +226,7 @@ module.exports = {
     getCarousel,
     deleteCarousel,
     updateCarousel,
+    addCalenderEvents,
+    addCrm 
+
 }
