@@ -14,3 +14,5 @@ const adminAuth = async(req, res, next) => {
         res.status(400).json("Invalid Token");
     }
 }
+
+module.exports = adminAuth;
