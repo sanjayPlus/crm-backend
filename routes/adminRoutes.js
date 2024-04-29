@@ -36,7 +36,8 @@ router.post('/addCarousel', carouselImage.single('image'),adminAuth,adminControl
 router.post('/add-calender-events',adminAuth,adminController.addCalenderEvents);
 router.post('/add-crms',adminAuth,adminController.addCrm);
 
-router.get('/getCarousel',adminController.getCarousel)
+router.get('/getCarousel',adminController.getCarousel);
+
 
 router.delete('/deleteCarousel/:id',adminAuth,adminController.deleteCarousel)
 

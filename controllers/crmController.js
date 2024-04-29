@@ -67,7 +67,19 @@ const crmLogin = async (req, res) => {
     }
 }
 
+const getCRMDetails = async (req, res) => {
+    try {
+        const crm = await CRM.findById(req.crm.id).select('-password');
+        
+        res.status(200).json({ crm });
+    } catch (error) {
+        res.status(500).json({ error: "Internal Server Error", message: error.message });
+        console.error(error);
+    }
+}
+
 module.exports = {
     register,
-    crmLogin
+    crmLogin,
+    getCRMDetails
 }

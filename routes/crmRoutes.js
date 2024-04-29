@@ -1,12 +1,12 @@
 const express = require('express')
-const crmController = require('../controllers/crmController')
+const crmController = require('../controllers/crmController');
+const crmAuth = require('../middlewares/crmAuth');
 
 const router = express.Router()
 
-// register
-router.post('/register',crmController.register)
+router.post('/register',crmAuth,crmController.register);
+router.post('/login',crmAuth,crmController.crmLogin);
 
-// login
-router.post('/login',crmController.crmLogin)
+router.get('/get-crm-data',crmAuth,crmController.getCRMDetails)
 
 module.exports = router
