@@ -59,6 +59,19 @@ const adminLogin = async (req, res) => {
     }
 }
 
+const Protected = async (req, res) => {
+    try {
+      if (req.admin) {
+        res.status(200).json({ message: "You are authorized" });
+      } else {
+        res.status(400).json({ message: "You are not authorized" });
+      }
+    } catch (error) {
+      console.error("Error during login:", error.message);
+      res.status(500).json({ error: "Internal Server Error" });
+    }
+  };
+
 const addCarousel = async (req, res) => {
     try {
         const { title, description, link } = req.body;
@@ -187,10 +200,27 @@ const addCalenderEvents =async(req,res)=>{
         date
         
     })
+    const cacheDate = await Calender.find().sort({ _id: -1 });
+    Cache.set('calender', cacheDate, catchTime);
     res.status(200).json(calenderEvents);
 
     } catch (error) {
        console.log("error");
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+};
+
+const deleteCalenderEvents = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const deletedCalenderEvents = await Calender.findByIdAndDelete(id);
+        if (!deletedCalenderEvents) {
+            return res.status(404).json({ error: "Calender not found" });
+        }
+         const cacheDate = await Calender.find().sort({ _id: -1 });
+         Cache.set('calender', cacheDate, catchTime);
+        res.status(200).json({ message: "Calender deleted successfully" });
+    } catch (error) {
         res.status(500).json({ error: "Internal Server Error" });
     }
 };
@@ -210,6 +240,8 @@ const addCrm =async (req,res)=>{
             guardian,
             joingdate
          });
+         const cacheDate = await crms.find().sort({ _id: -1 });
+         Cache.set('crm', cacheDate, catchTime);
          res.status(200).json(crmDetails);
     } catch (error) {
         console.log("error");
@@ -217,16 +249,31 @@ const addCrm =async (req,res)=>{
     }
 };
 
-
+const deletecrm = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const deletedCrm = await crms.findByIdAndDelete(id);
+        if (!deletedCrm) {
+            return res.status(404).json({ error: "Crm not found" });
+        }
+         const cacheDate = await crms.find().sort({ _id: -1 });
+         Cache.set('crm', cacheDate, catchTime);
+        res.status(200).json({ message: "Crm deleted successfully" });
+    } catch (error) {
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+};
 
 module.exports = {
     // register,
     adminLogin,
+    Protected,
     addCarousel,
     getCarousel,
     deleteCarousel,
     updateCarousel,
     addCalenderEvents,
-    addCrm 
-
+    addCrm,
+    deleteCalenderEvents,
+    deletecrm,
 }

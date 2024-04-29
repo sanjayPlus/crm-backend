@@ -41,6 +41,19 @@ const register = async (req, res) => {
     }
 }
 
+const protected = async (req, res) => {
+    try {
+      if (req.crm) {
+        res.status(200).json({ message: "You are authorized" });
+      } else {
+        res.status(400).json({ message: "You are not authorized" });
+      }
+    } catch (error) {
+      console.error("Error during login:", error.message);
+      res.status(500).json({ error: "Internal Server Error" });
+    }
+  };
+
 // AdminLogin
 
 const crmLogin = async (req, res) => {
@@ -81,5 +94,6 @@ const getCRMDetails = async (req, res) => {
 module.exports = {
     register,
     crmLogin,
-    getCRMDetails
+    getCRMDetails,
+    protected,
 }

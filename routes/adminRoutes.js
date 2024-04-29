@@ -36,10 +36,13 @@ router.post('/addCarousel', carouselImage.single('image'),adminAuth,adminControl
 router.post('/add-calender-events',adminAuth,adminController.addCalenderEvents);
 router.post('/add-crms',adminAuth,adminController.addCrm);
 
+router.get('/protected',adminAuth,adminController.Protected);
 router.get('/getCarousel',adminController.getCarousel);
 
 
-router.delete('/deleteCarousel/:id',adminAuth,adminController.deleteCarousel)
+router.delete('/deleteCarousel/:id',adminAuth,adminController.deleteCarousel);
+router.delete('/delete-calender-events/:id',adminAuth,adminController.deleteCalenderEvents);
+router.delete('/delete-crms/:id',adminAuth,adminController.deletecrm);
 
 router.put('/updateCarousel/:id', carouselImage.single('image'),adminAuth,adminController.updateCarousel)
 
