@@ -50,7 +50,9 @@ const crmLogin = async (req, res) => {
         if (!crm) {
             return res.status(401).json({ message: "CRM not found" })
         }
-
+        if(!email || !password) {
+            return res.status(400).json({ message: "All fields are required" })
+        }
         // check password
         const matchPassword = await bcrypt.compare(password, crm.password)
         if (!matchPassword) {

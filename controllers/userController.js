@@ -45,11 +45,13 @@ const register = async (req, res) => {
 const userLogin = async (req, res) => {
     try {
         const { email, password } = req.body
+        if(!email || !password) {
+            return res.status(400).json({ message: "All fields are required" })
+        }
         const user = await User.findOne({ email })
         if (!user) {
             return res.status(401).json({ message: "User not found" })
         }
-
 
         // check password
         const matchPassword = await bcrypt.compare(password, user.password)
