@@ -34,7 +34,8 @@ const carouselStorage = multer.diskStorage({
 router.post('/login',adminController.adminLogin);
 router.post('/addCarousel', carouselImage.single('image'),adminAuth,adminController.addCarousel)
 
-router.get('/getCarousel',adminController.getCarousel)
+router.get('/getCarousel',adminController.getCarousel);
+
 
 router.delete('/deleteCarousel/:id',adminAuth,adminController.deleteCarousel)
 
