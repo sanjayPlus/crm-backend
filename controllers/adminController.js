@@ -228,7 +228,8 @@ const deleteCalenderEvents = async (req, res) => {
 const addCrm =async (req,res)=>{
     try {
         const {name,email,password,phoneno,
-            dateofBirth,program,guardian,joingdate} =req.body;
+            dateofBirth,program,guardian,joingdate,salary} =req.body;
+            const imgObj = req.file;
         
          const crmDetails =  await crms.create({
             name,
@@ -238,7 +239,9 @@ const addCrm =async (req,res)=>{
             dateofBirth,
             program,
             guardian,
-            joingdate
+            joingdate,
+            salary,
+            image: `${process.env.DOMAIN}/public/crm/${imgObj.filename}`
          });
          const cacheDate = await crms.find().sort({ _id: -1 });
          Cache.set('crm', cacheDate, catchTime);
@@ -252,18 +255,31 @@ const addCrm =async (req,res)=>{
 const deletecrm = async (req, res) => {
     try {
         const { id } = req.params;
-        const deletedCrm = await crms.findByIdAndDelete(id);
-        if (!deletedCrm) {
-            return res.status(404).json({ error: "Crm not found" });
+        const deletedCRM = await crms.findByIdAndDelete(id);
+        if (!deletedCRM) {
+            return res.status(404).json({ error: "Carousel not found" });
         }
-         const cacheDate = await crms.find().sort({ _id: -1 });
-         Cache.set('crm', cacheDate, catchTime);
-        res.status(200).json({ message: "Crm deleted successfully" });
+
+        // Extract the filename from the full URL
+        const imageUrl = deletedCRM.image;
+        const filename = imageUrl.split('/').pop(); // Get the last part (filename)
+
+        // Construct the path to the image file
+        const imagePath = path.join('public', 'crm', filename);
+
+        // Delete the image file
+        fs.unlinkSync(imagePath);
+
+        // Update the carousel cache
+        const crmCache = await crms.find().sort({ _id: -1 });
+        Cache.set('crm', crmCache, catchTime);
+
+        res.status(200).json({ message: "CRM deleted successfully" });
     } catch (error) {
-        res.status(500).json({ error: "Internal Server Error" });
+        res.status(500).json({ error: "Internal Server Error", message: error.message });
+        console.error(error);
     }
 };
-
 module.exports = {
     // register,
     adminLogin,
