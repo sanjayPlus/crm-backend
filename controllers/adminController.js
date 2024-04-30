@@ -9,7 +9,6 @@ const path = require('path');
 const Calender = require('../models/Calender');
 const crms = require('../models/crmModel');
 
-
 // register
 // const register = async (req, res) => {
 //     console.log("Inside register API");
@@ -275,60 +274,6 @@ const addCrm = async (req, res) => {
     }
 };
 
-const getCrm =async (req,res)=>{
-    try {
-        const crmCache = await Cache.get('crms')
-        if (crmCache) {
-            return res.status(200).json(crmCache);
-        }
-        const crm = await crms.find().sort({_id: -1});
-        Cache.set('crms',crm,catchTime);
-        res.status(200).json({crm});
-    } catch (error) {
-        console.log("error");
-        res.status(500).json({ error: "Internal Server Error", message: error.message });
-    }
-};
-
-const updateCrm =async (req,res)=>{
-    try {
-        const {id}= req.params;
-        const {phoneno,program,salary} = req.body;
-        const imgObj =req.file;
-
-        const updatedcrm = await crms.findByIdAndUpdate(id,{
-            phoneno,
-            program,
-            salary,
-            image:`${process.env.DOMAIN}/public/crm/${imgObj.filename}`
-        });
-        if (!updatedcrm) {
-            return res.status(404).json({error: "CRM not found"})
-        }
-
-        const oldImageFilename = updatedcrm.image;
-        const filename = oldImageFilename.split('/').pop();
-        const oldImagePath = path.join('public', 'crm',filename);
-
-
-        const newImageFilename = imgObj.filename;
-        const newImagePath = path.join('public', 'crm', newImageFilename);
-
-        fs.unlinkSync(oldImagePath);
-
-
-        const crmCache = await crms.find().sort({_id: -1})
-        Cache.set('crm', crmCache ,catchTime);
-
-        res.status(200).json({ message: "CRM updated successfully" });
-
-
-    } catch (error) {
-        console.log("error");
-        res.status(500).json({ error: "Internal Server Error", message: error.message });
-    }
-};
-
 const deletecrm = async (req, res) => {
     try {
         const { id } = req.params;
@@ -357,6 +302,22 @@ const deletecrm = async (req, res) => {
         console.error(error);
     }
 };
+const getCrm =async (req,res)=>{
+    try {
+        const crmCache = await Cache.get('crms')
+        if (crmCache) {
+            return res.status(200).json(crmCache);
+        }
+        const crm = await crms.find().sort({_id: -1});
+        Cache.set('crms',crm,catchTime);
+        res.status(200).json({crm});
+    } catch (error) {
+        console.log("error");
+        res.status(500).json({ error: "Internal Server Error", message: error.message });
+    }
+};
+
+
 module.exports = {
     // register,
     adminLogin,
@@ -370,8 +331,5 @@ module.exports = {
     deleteCalenderEvents,
     deletecrm,
     getCarouselById,
-
     getCrm,
-    updateCrm
- 
 }

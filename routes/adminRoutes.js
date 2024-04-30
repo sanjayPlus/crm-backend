@@ -64,7 +64,6 @@ router.post('/add-crms', crmImage.single('image'),adminAuth,adminController.addC
 router.get('/protected',adminAuth,adminController.Protected);
 router.get('/getCarousel',adminController.getCarousel);
 router.get('/get-carousel-by-id/:id',adminController.getCarouselById);
-
 router.get('/get-crms',adminController.getCrm);
 
 router.delete('/deleteCarousel/:id',adminAuth,adminController.deleteCarousel);
@@ -72,7 +71,7 @@ router.delete('/delete-calender-events/:id',adminAuth,adminController.deleteCale
 router.delete('/delete-crms/:id',adminAuth,adminController.deletecrm);
 
 router.put('/updateCarousel/:id', carouselImage.single('image'),adminAuth,adminController.updateCarousel);
-router.put('/updateCrm/:id',crmImage.single('image'),adminAuth, adminController.updateCrm),
+// router.put('/updateCrm/:id',crmImage.single('image'),adminAuth, adminController.updateCrm),
 
 
 module.exports = router
