@@ -96,7 +96,7 @@ const getCRMDetails = async (req, res) => {
 
 const addAssignments = async (req, res) => {
     try {
-        const { title, subject, assignmentType, issueDate, dueDate, priority,status } = req.body;
+        const { title, subject, assignmentType, issueDate, dueDate, priority,status,createdBy } = req.body;
         const assignments = await assignment.create({
             title,
             subject,
@@ -104,7 +104,8 @@ const addAssignments = async (req, res) => {
             issueDate,
             dueDate,
             priority,
-            status
+            status,
+            createdBy: req.crm.id
             
         });
         const cacheDate = await assignment.find().sort({ _id: -1 });
@@ -116,10 +117,30 @@ const addAssignments = async (req, res) => {
     }
 }
 
+const addLeave = async (req, res) => {
+    try{
+        const{ leaveDate,duration,permissionDetails,assignmentAssignedTo } = req.body;
+        const leave = await Leave.create({
+            leaveDate,
+            duration,
+            permissionDetails,
+            assignmentAssignedTo
+        });
+        const leavecache = await Leave.find().sort({ _id: -1 });
+        Cache.set('leave', leavecache, catchTime);
+        res.status(200).json({ leave });
+    }catch(error){
+        res.status(500).json({ error: "Internal Server Error", message: error.message });
+        console.error(error.message);
+    }
+
+}
+
 module.exports = {
     register,
     crmLogin,
     getCRMDetails,
     protected,
     addAssignments,
+    addLeave,
 }
