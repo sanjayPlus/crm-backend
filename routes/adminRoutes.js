@@ -39,13 +39,13 @@ router.post('/add-crms',adminAuth,adminController.addCrm);
 
 router.get('/protected',adminAuth,adminController.Protected);
 router.get('/getCarousel',adminController.getCarousel);
-
+router.get('/get-crms',adminController.getCrm);
 
 router.delete('/deleteCarousel/:id',adminAuth,adminController.deleteCarousel);
 router.delete('/delete-calender-events/:id',adminAuth,adminController.deleteCalenderEvents);
 router.delete('/delete-crms/:id',adminAuth,adminController.deletecrm);
 
-router.put('/updateCarousel/:id', carouselImage.single('image'),adminAuth,adminController.updateCarousel)
+router.put('/updateCarousel/:id', carouselImage.single('image'),adminAuth,adminController.updateCarousel);
 
 
 module.exports = router
