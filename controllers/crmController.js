@@ -94,14 +94,15 @@ const getCRMDetails = async (req, res) => {
 
 const addAssignments = async (req, res) => {
     try {
-        const { title, subject, assignmentType, issueDate, dueDate, priority } = req.body;
+        const { title, subject, assignmentType, issueDate, dueDate, priority,status } = req.body;
         const assignments = await assignment.create({
             title,
             subject,
             assignmentType,
             issueDate,
             dueDate,
-            priority
+            priority,
+            status
             
         });
         const cacheDate = await assignment.find().sort({ _id: -1 });
