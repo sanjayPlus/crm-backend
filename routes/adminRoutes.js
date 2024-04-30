@@ -71,7 +71,7 @@ router.delete('/delete-calender-events/:id',adminAuth,adminController.deleteCale
 router.delete('/delete-crms/:id',adminAuth,adminController.deletecrm);
 
 router.put('/updateCarousel/:id', carouselImage.single('image'),adminAuth,adminController.updateCarousel);
-// router.put('/updateCrm/:id',crmImage.single('image'),adminAuth, adminController.updateCrm),
+router.put('/updateCrm/:id',crmImage.single('image'),adminAuth, adminController.updateCrm),
 
 
 module.exports = router

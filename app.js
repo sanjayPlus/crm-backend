@@ -18,6 +18,7 @@ console.log("MongoDb Connected Successfully!!!");
 
 app.use(cors())
 app.use(express.json())
+app.use(express.static('public'));
 
 // use routes
 app.use('/api/user', userRoutes)
