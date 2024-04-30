@@ -2,6 +2,8 @@ const CRM = require('../models/crmModel')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const assignment = require('../models/Assignments')
+const Cache = require('../middlewares/Cache');
+const catchTime = 600;
 
 // register
 const register = async (req, res) => {
@@ -106,7 +108,7 @@ const addAssignments = async (req, res) => {
             
         });
         const cacheDate = await assignment.find().sort({ _id: -1 });
-        Cache.set('assignments', cacheDate, catchTime);
+        Cache.set('assignment', cacheDate, catchTime);
         res.status(200).json({ assignments });
     } catch (error) {
         res.status(500).json({ error: "Internal Server Error", message: error.message });
