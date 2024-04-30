@@ -117,12 +117,12 @@ const getCarousel = async (req, res) => {
 const getCarouselById = async (req, res) => {
     try {
         const { id } = req.params;
-        const carouselcache = await Cache.get('carousel');
+        const carouselcache = await Cache.get(`carousel_${id}`);
         if (carouselcache) {
-                return res.status(200).json(carouselcache);  
+            return res.status(200).json(carouselcache);  
         }
         const carousel = await Carousel.findById(id);
-        Cache.set('carousel', carousel, catchTime);
+        Cache.set(`carousel_${id}`, carousel, catchTime);
 
         res.status(200).json({ carousel });
     } catch (error) {
@@ -130,6 +130,7 @@ const getCarouselById = async (req, res) => {
         console.error(error);
     }
 };
+
 
 
 
