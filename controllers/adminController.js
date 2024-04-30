@@ -227,6 +227,7 @@ const addCalenderEvents = async (req, res) => {
     }
 };
 
+
 const deleteCalenderEvents = async (req, res) => {
     try {
         const { id } = req.params;

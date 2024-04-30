@@ -114,7 +114,8 @@ const addAssignments = async (req, res) => {
         res.status(500).json({ error: "Internal Server Error", message: error.message });
         console.error(error);
     }
-}
+};
+
 
 module.exports = {
     register,
@@ -122,4 +123,5 @@ module.exports = {
     getCRMDetails,
     protected,
     addAssignments,
+   
 }
