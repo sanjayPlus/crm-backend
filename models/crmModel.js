@@ -31,7 +31,15 @@ const crmSchema = new mongoose.Schema({
     joingdate: {
         type:String,
         required:true
-    }
+    },
+    salary: {
+        type:String,
+        required:true
+    },
+    image: {
+        type: String
+    },
+    
 })
 
 const crms = mongoose.model('crms', crmSchema)

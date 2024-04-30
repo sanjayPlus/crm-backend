@@ -1,6 +1,7 @@
 const CRM = require('../models/crmModel')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
+const assignment = require('../models/Assignments')
 
 // register
 const register = async (req, res) => {
@@ -91,9 +92,31 @@ const getCRMDetails = async (req, res) => {
     }
 }
 
+const addAssignments = async (req, res) => {
+    try {
+        const { title, subject, assignmentType, issueDate, dueDate, priority } = req.body;
+        const assignments = await assignment.create({
+            title,
+            subject,
+            assignmentType,
+            issueDate,
+            dueDate,
+            priority
+            
+        });
+        const cacheDate = await assignment.find().sort({ _id: -1 });
+        Cache.set('assignments', cacheDate, catchTime);
+        res.status(200).json({ assignments });
+    } catch (error) {
+        res.status(500).json({ error: "Internal Server Error", message: error.message });
+        console.error(error);
+    }
+}
+
 module.exports = {
     register,
     crmLogin,
     getCRMDetails,
     protected,
+    addAssignments,
 }
