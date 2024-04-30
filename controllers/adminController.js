@@ -264,13 +264,7 @@ const deletecrm = async (req, res) => {
     }
 };
 
-const getCrm = (req,res)=>{
-    try {
-        
-    } catch (error) {
-        console.log("error");
-    }
-};
+
 
 module.exports = {
     // register,
@@ -284,5 +278,5 @@ module.exports = {
     addCrm,
     deleteCalenderEvents,
     deletecrm,
-    getCrm
+ 
 }
