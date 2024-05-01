@@ -148,7 +148,7 @@ const deleteCarousel = async (req, res) => {
         const filename = imageUrl.split('/').pop(); // Get the last part (filename)
 
         // Construct the path to the image file
-        const imagePath = path.join('public', 'carousel', filename);
+        const imagePath = path.join( 'carousel', filename);
 
         // Delete the image file
         fs.unlinkSync(imagePath);
