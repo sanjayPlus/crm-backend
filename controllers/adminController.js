@@ -340,12 +340,27 @@ const addCrm = async (req, res) => {
             guardian,
             joingdate,
             salary,
-            image: `${process.env.DOMAIN}/public/crm/${imgObj.filename}`
+            image: `${process.env.DOMAIN}/crm/${imgObj.filename}`
         });
         
         const cacheDate = await crms.find().sort({ _id: -1 });
-        Cache.set('crm', cacheDate, catchTime);
+        Cache.set('crms', cacheDate, catchTime); // Use 'crms' as the cache key
         res.status(200).json(crmDetails);
+    } catch (error) {
+        console.log("error");
+        res.status(500).json({ error: "Internal Server Error", message: error.message });
+    }
+};
+
+const getCrm =async (req,res)=>{
+    try {
+        const crmCache = await Cache.get('crms') // Use 'crms' as the cache key
+        if (crmCache) {
+            return res.status(200).json(crmCache);
+        }
+        const crm = await crms.find().sort({_id: -1});
+        Cache.set('crms',crm,catchTime); // Use 'crms' as the cache key
+        res.status(200).json({crm});
     } catch (error) {
         console.log("error");
         res.status(500).json({ error: "Internal Server Error", message: error.message });
@@ -380,20 +395,20 @@ const deletecrm = async (req, res) => {
         console.error(error);
     }
 };
-const getCrm =async (req,res)=>{
-    try {
-        const crmCache = await Cache.get('crms')
-        if (crmCache) {
-            return res.status(200).json(crmCache);
-        }
-        const crm = await crms.find().sort({_id: -1});
-        Cache.set('crms',crm,catchTime);
-        res.status(200).json({crm});
-    } catch (error) {
-        console.log("error");
-        res.status(500).json({ error: "Internal Server Error", message: error.message });
-    }
-};
+// const getCrm =async (req,res)=>{
+//     try {
+//         const crmCache = await Cache.get('crms')
+//         if (crmCache) {
+//             return res.status(200).json(crmCache);
+//         }
+//         const crm = await crms.find().sort({_id: -1});
+//         Cache.set('crms',crm,catchTime);
+//         res.status(200).json({crm});
+//     } catch (error) {
+//         console.log("error");
+//         res.status(500).json({ error: "Internal Server Error", message: error.message });
+//     }
+// };
 
 const updateCrm =async (req,res)=>{
     try {
