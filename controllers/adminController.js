@@ -190,10 +190,21 @@ const updateCarousel = async (req, res) => {
         }
 
         // Update the carousel item
-        carouselItem.title = title;
-        carouselItem.description = description;
-        carouselItem.link = link;
-        carouselItem.image = `${process.env.DOMAIN}/public/carousel/${imgObj.filename}`;
+        if(title){
+            carouselItem.title = title;
+        }
+        if(description){
+            carouselItem.description = description;
+        }
+        if(link){
+            carouselItem.link = link;
+        }
+
+        if (imgObj) {
+            carouselItem.image = `${process.env.DOMAIN}/public/carousel/${imgObj.filename}`;
+        }
+
+        // Save the updated carousel item
 
         const updatedCarousel = await carouselItem.save();
         
