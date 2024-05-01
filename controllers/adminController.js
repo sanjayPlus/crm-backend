@@ -289,6 +289,21 @@ const addCalenderEvents = async (req, res) => {
     }
 };
 
+const getCalenderEvent =async(req,res)=>{
+    try {
+        const CalenderCache = await Cache.get('calender')
+        if(CalenderCache){
+            return res.status(200).json(CalenderCache);
+        }
+        const calender = await Calender.find().sort({_id: -1});
+        Cache.set('calender',calender,catchTime);
+        res.status(200).json({calender}) 
+    } catch (error) {
+        console.log("error");
+        res.status(500).json({ error: "Internal Server Error", message: error.message });
+    }
+};
+
 
 const deleteCalenderEvents = async (req, res) => {
     try {
@@ -474,5 +489,6 @@ module.exports = {
     getCrm,
     updateCrm,
     addAssignments,
-    getLeave
+    getLeave,
+    getCalenderEvent 
 }
