@@ -138,15 +138,13 @@ const getCarousel = async (req, res) => {
 const deleteCarousel = async (req, res) => {
     try {
         const { id } = req.params;
-
-        // Find the carousel item first
-        const carouselItem = await Carousel.findById(id);
-        if (!carouselItem) {
+        const deletedCarousel = await Carousel.findByIdAndDelete({ _id: id });
+        if (!deletedCarousel) {
             return res.status(404).json({ error: "Carousel not found" });
         }
 
         // Extract the filename from the full URL
-        const imageUrl = carouselItem.image;
+        const imageUrl = deletedCarousel.image;
         const filename = imageUrl.split('/').pop(); // Get the last part (filename)
 
         // Construct the path to the image file
@@ -154,9 +152,6 @@ const deleteCarousel = async (req, res) => {
 
         // Delete the image file
         fs.unlinkSync(imagePath);
-
-        // Delete the carousel item
-        await Carousel.deleteOne({ _id: id });
 
         // Update the carousel cache
         const carouselCache = await Carousel.find().sort({ _id: -1 });
