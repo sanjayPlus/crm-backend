@@ -115,6 +115,16 @@ const getCarousel = async (req, res) => {
     }
 };
 
+// const getCarousel = async (req, res) => {
+//     try {
+//         const carousel = await Carousel.find().sort({ _id: -1 });
+//         res.status(200).json({ carousel });
+//     } catch (error) {
+//         res.status(500).json({ error: "Internal Server Error", message: error.message });
+//         console.error(error);
+//     }
+// }
+
 // const getCarouselById = async (req, res) => {
 //     try {
 //         const { id } = req.params;
@@ -150,8 +160,13 @@ const deleteCarousel = async (req, res) => {
         // Construct the path to the image file
         const imagePath = path.join( 'carousel', filename);
 
-        // Delete the image file
-        fs.unlinkSync(imagePath);
+        // Check if the file exists before trying to delete it
+        if (fs.existsSync(imagePath)) {
+            // Delete the image file
+            fs.unlinkSync(imagePath);
+        } else {
+            console.log(`File not found: ${imagePath}`);
+        }
 
         // Update the carousel cache
         const carouselCache = await Carousel.find().sort({ _id: -1 });
@@ -208,7 +223,7 @@ const updateCarousel = async (req, res) => {
         // Save the updated carousel item
         const updatedCarousel = await carouselItem.save();
 
-        // Update the carousel cache
+        // // Update the carousel cache
         const carouselCache = await Carousel.find().sort({ _id: -1 });
         Cache.set('carousel', carouselCache, catchTime);
 
@@ -239,6 +254,17 @@ const getCarouselById = async (req, res) => {
         console.error(error);
     }
 };
+
+// const getCarouselById = async (req, res) => {
+//     try {
+//         const { id } = req.params;
+//         const carousel = await Carousel.findById(id);
+//         res.status(200).json({ carousel });
+//     } catch (error) {
+//         res.status(500).json({ error: "Internal Server Error", message: error.message });
+//         console.error(error);
+//     }
+// };
 
 const addCalenderEvents = async (req, res) => {
     try {
