@@ -90,8 +90,8 @@ const addCarousel = async (req, res) => {
             image: `${process.env.DOMAIN}/carousel/${imgObj.filename}`
         });
 
-        // const carouselCache = await Carousel.find().sort({ _id: -1 });
-        // Cache.set('carousel', carouselCache, catchTime);
+        const carouselCache = await Carousel.find().sort({ _id: -1 });
+        Cache.set('carousel', carouselCache, catchTime);
 
         res.status(200).json({ newcarousel });
     } catch (error) {
@@ -100,30 +100,31 @@ const addCarousel = async (req, res) => {
     }
 };
 
-// const getCarousel = async (req, res) => {
-//     try {
-//         const carouselCache = await Cache.get('carousel');
-//         if (carouselCache) {
-//             return res.status(200).json(carouselCache);
-//         }
-//         const carousel = await Carousel.find().sort({ _id: -1 });
-//         Cache.set('carousel', carousel, catchTime);
-//         res.status(200).json({ carousel });
-//     } catch (error) {
-//         res.status(500).json({ error: "Internal Server Error", message: error.message });
-//         console.error(error);
-//     }
-// };
-
 const getCarousel = async (req, res) => {
     try {
+        const carouselCache = await Cache.get('carousel');
+        if (carouselCache) {
+            return res.status(200).json(carouselCache);
+        }
         const carousel = await Carousel.find().sort({ _id: -1 });
+        Cache.set('carousel', carousel, catchTime);
         res.status(200).json({ carousel });
     } catch (error) {
         res.status(500).json({ error: "Internal Server Error", message: error.message });
         console.error(error);
     }
-}
+};
+
+// const getCarousel = async (req, res) => {
+//     try {
+//         const carousel = await Carousel.find().sort({ _id: -1 });
+//         res.status(200).json({ carousel });
+//     } catch (error) {
+//         res.status(500).json({ error: "Internal Server Error", message: error.message });
+//         console.error(error);
+//     }
+// }
+
 // const getCarouselById = async (req, res) => {
 //     try {
 //         const { id } = req.params;
@@ -161,12 +162,17 @@ const deleteCarousel = async (req, res) => {
         // Construct the path to the image file
         const imagePath = path.join( 'carousel', filename);
 
-        // Delete the image file
-        fs.unlinkSync(imagePath);
+        // Check if the file exists before trying to delete it
+        if (fs.existsSync(imagePath)) {
+            // Delete the image file
+            fs.unlinkSync(imagePath);
+        } else {
+            console.log(`File not found: ${imagePath}`);
+        }
 
-        // // Update the carousel cache
-        // const carouselCache = await Carousel.find().sort({ _id: -1 });
-        // Cache.set('carousel', carouselCache, catchTime);
+        // Update the carousel cache
+        const carouselCache = await Carousel.find().sort({ _id: -1 });
+        Cache.set('carousel', carouselCache, catchTime);
 
         res.status(200).json({ message: "Carousel deleted successfully" });
     } catch (error) {
@@ -219,11 +225,11 @@ const updateCarousel = async (req, res) => {
         const updatedCarousel = await carouselItem.save();
 
         // // Update the carousel cache
-        // const carouselCache = await Carousel.find().sort({ _id: -1 });
-        // Cache.set('carousel', carouselCache, catchTime);
+        const carouselCache = await Carousel.find().sort({ _id: -1 });
+        Cache.set('carousel', carouselCache, catchTime);
 
         // Update the cache for the individual item
-        // Cache.set(`carousel_${id}`, updatedCarousel, catchTime);
+        Cache.set(`carousel_${id}`, updatedCarousel, catchTime);
 
         // Send the response after the cache is updated
         res.status(200).json({ message: "Carousel updated successfully", updatedCarousel });
@@ -233,33 +239,33 @@ const updateCarousel = async (req, res) => {
     }
 };
 
-// const getCarouselById = async (req, res) => {
-//     try {
-//         const { id } = req.params;
-//         const carouselcache = await Cache.get(`carousel_${id}`);
-//         if (carouselcache) {
-//             return res.status(200).json(carouselcache);  
-//         }
-//         const carousel = await Carousel.findById(id);
-//         Cache.set(`carousel_${id}`, carousel, catchTime);
-
-//         res.status(200).json({ carousel });
-//     } catch (error) {
-//         res.status(500).json({ error: "Internal Server Error", message: error.message });
-//         console.error(error);
-//     }
-// };
-
 const getCarouselById = async (req, res) => {
     try {
         const { id } = req.params;
+        const carouselcache = await Cache.get(`carousel_${id}`);
+        if (carouselcache) {
+            return res.status(200).json(carouselcache);  
+        }
         const carousel = await Carousel.findById(id);
+        Cache.set(`carousel_${id}`, carousel, catchTime);
+
         res.status(200).json({ carousel });
     } catch (error) {
         res.status(500).json({ error: "Internal Server Error", message: error.message });
         console.error(error);
     }
 };
+
+// const getCarouselById = async (req, res) => {
+//     try {
+//         const { id } = req.params;
+//         const carousel = await Carousel.findById(id);
+//         res.status(200).json({ carousel });
+//     } catch (error) {
+//         res.status(500).json({ error: "Internal Server Error", message: error.message });
+//         console.error(error);
+//     }
+// };
 
 const addCalenderEvents = async (req, res) => {
     try {
