@@ -87,7 +87,7 @@ const addCarousel = async (req, res) => {
             title,
             description,
             link,
-            image: `${process.env.DOMAIN}/public/carousel/${imgObj.filename}`
+            image: `${process.env.DOMAIN}/carousel/${imgObj.filename}`
         });
 
         const carouselCache = await Carousel.find().sort({ _id: -1 });
@@ -179,16 +179,15 @@ const updateCarousel = async (req, res) => {
         }
 
         // Construct the path to the old image file
-        const oldImageFilename = updatedcrm.image;
-        const filename = oldImageFilename.split('/').pop();
-        const oldImagePath = path.join('public', 'crm',filename);
+        const oldImageFilename = carouselItem.image;
+        const filename = oldImageFilename.split('/').pop(); // Get the last part (filename)
+        const oldImagePath = path.join( 'carousel', filename);
 
-
-        const newImageFilename = imgObj.filename;
-        const newImagePath = path.join('public', 'crm', newImageFilename);
-
-        fs.unlinkSync(oldImagePath);
-
+        // Check if the old image file exists before trying to delete it
+        if (fs.existsSync(oldImagePath)) {
+            // Delete the old image file
+            fs.unlinkSync(oldImagePath);
+        }
 
         // Update the carousel item
         if(title){
@@ -202,7 +201,7 @@ const updateCarousel = async (req, res) => {
         }
 
         if (imgObj) {
-            carouselItem.image = `${process.env.DOMAIN}/public/carousel/${imgObj.filename}`;
+            carouselItem.image = `${process.env.DOMAIN}/carousel/${imgObj.filename}`;
         }
 
         // Save the updated carousel item
