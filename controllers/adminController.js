@@ -205,13 +205,13 @@ const updateCarousel = async (req, res) => {
         }
 
         // Save the updated carousel item
-
         const updatedCarousel = await carouselItem.save();
-        
+
         // Update the carousel cache
         const carouselCache = await Carousel.find().sort({ _id: -1 });
         Cache.set('carousel', carouselCache, catchTime);
 
+        // Send the response after the cache is updated
         res.status(200).json({ message: "Carousel updated successfully", updatedCarousel });
     } catch (error) {
         res.status(500).json({ error: "Internal Server Error", message: error.message });
