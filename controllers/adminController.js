@@ -148,7 +148,7 @@ const deleteCarousel = async (req, res) => {
     try {
         const { id } = req.params;
         console.log(id)
-        const deletedCarousel = await Carousel.findOneAndDelete({_id:req.params.id});
+        const deletedCarousel = await Carousel.findOneAndDelete(id);
         console.log(deletedCarousel);
         if (!deletedCarousel) {
             return res.status(404).json({ error: "Carousel not found" });
@@ -223,7 +223,7 @@ const updateCarousel = async (req, res) => {
         // Cache.set('carousel', carouselCache, catchTime);
 
         // Update the cache for the individual item
-        Cache.set(`carousel_${id}`, updatedCarousel, catchTime);
+        // Cache.set(`carousel_${id}`, updatedCarousel, catchTime);
 
         // Send the response after the cache is updated
         res.status(200).json({ message: "Carousel updated successfully", updatedCarousel });
