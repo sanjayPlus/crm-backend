@@ -171,22 +171,15 @@ const updateCarousel = async (req, res) => {
         const { id } = req.params;
         const { title, description, link } = req.body;
         const imgObj = req.file;
-        if(!imgObj || !imgObj.filename){
-            return res.status(400).json({ error: "Image file is missing or invalid" });
-        }
 
-        const updatedCarousel = await Carousel.findByIdAndUpdate(id, {
-            title,
-            description,
-            link,
-            image: `${process.env.DOMAIN}/public/carousel/${imgObj.filename}`
-        });
-        if (!updatedCarousel) {
+        // Find the carousel item first
+        const carouselItem = await Carousel.findById(id);
+        if (!carouselItem) {
             return res.status(404).json({ error: "Carousel not found" });
         }
 
         // Construct the path to the old image file
-        const oldImageFilename = updatedCarousel.image;
+        const oldImageFilename = carouselItem.image;
         const filename = oldImageFilename.split('/').pop(); // Get the last part (filename)
         const oldImagePath = path.join('public', 'carousel', filename);
 
@@ -196,11 +189,19 @@ const updateCarousel = async (req, res) => {
             fs.unlinkSync(oldImagePath);
         }
 
+        // Update the carousel item
+        carouselItem.title = title;
+        carouselItem.description = description;
+        carouselItem.link = link;
+        carouselItem.image = `${process.env.DOMAIN}/public/carousel/${imgObj.filename}`;
+
+        const updatedCarousel = await carouselItem.save();
+        
         // Update the carousel cache
         const carouselCache = await Carousel.find().sort({ _id: -1 });
         Cache.set('carousel', carouselCache, catchTime);
 
-        res.status(200).json({ message: "Carousel updated successfully" });
+        res.status(200).json({ message: "Carousel updated successfully", updatedCarousel });
     } catch (error) {
         res.status(500).json({ error: "Internal Server Error", message: error.message });
         console.error(error);
