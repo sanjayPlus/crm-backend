@@ -410,42 +410,57 @@ const deletecrm = async (req, res) => {
 //     }
 // };
 
-const updateCrm =async (req,res)=>{
+const updateCrm = async (req, res) => {
     try {
-        const {id}= req.params;
-        const {phoneno,program,salary} = req.body;
-        const imgObj =req.file;
+        const { id } = req.params;
+        const { phoneno, program, salary } = req.body;
+        const imgObj = req.file;
 
-        const updatedcrm = await crms.findByIdAndUpdate(id,{
-            phoneno,
-            program,
-            salary,
-            image:`${process.env.DOMAIN}/public/crm/${imgObj.filename}`
-        });
-        if (!updatedcrm) {
-            return res.status(404).json({error: "CRM not found"})
+
+        // Find the carousel item first
+        const crmItem = await crms.findById(id);
+        if (!crmItem) {
+            return res.status(404).json({ error: "Carousel not found" });
         }
 
-        const oldImageFilename = updatedcrm.image;
-        const filename = oldImageFilename.split('/').pop();
-        const oldImagePath = path.join('public', 'crm',filename);
+        // Construct the path to the old image file
+        const oldImageFilename = crmItem.image;
+        const filename = oldImageFilename.split('/').pop(); // Get the last part (filename)
+        const oldImagePath = path.join( 'crm', filename);
 
+        // Check if the old image file exists before trying to delete it
+        if (fs.existsSync(oldImagePath)) {
+            // Delete the old image file
+            fs.unlinkSync(oldImagePath);
+        }
 
-        const newImageFilename = imgObj.filename;
-        const newImagePath = path.join('public', 'crm', newImageFilename);
+        // Update the carousel item
+        if(phoneno){
+            crmItem.phoneno = phoneno;
+        }
+        if(program){
+            crmItem.program = program;
+        }
+        if(salary){
+            crmItem.salary = salary;
+        }
 
-        fs.unlinkSync(oldImagePath);
+        
+        // Save the updated carousel item
+        const updatedcrm = await crmItem.save();
 
+        // // Update the carousel cache
+        const carouselCrm = await crms.find().sort({ _id: -1 });
+        Cache.set('crm', carouselCrm, catchTime);
 
-        const crmCache = await crms.find().sort({_id: -1})
-        Cache.set('crm', crmCache ,catchTime);
+        // Update the cache for the individual item
+        Cache.set(`crm_${id}`, updatedcrm, catchTime);
 
-        res.status(200).json({ message: "CRM updated successfully" });
-
-
+        // Send the response after the cache is updated
+        res.status(200).json({ message: "Carousel updated successfully", updatedcrm });
     } catch (error) {
-        console.log("error");
         res.status(500).json({ error: "Internal Server Error", message: error.message });
+        console.error(error);
     }
 };
 
