@@ -179,15 +179,16 @@ const updateCarousel = async (req, res) => {
         }
 
         // Construct the path to the old image file
-        const oldImageFilename = carouselItem.image;
-        const filename = oldImageFilename.split('/').pop(); // Get the last part (filename)
-        const oldImagePath = path.join('public', 'carousel', filename);
+        const oldImageFilename = updatedcrm.image;
+        const filename = oldImageFilename.split('/').pop();
+        const oldImagePath = path.join('public', 'crm',filename);
 
-        // Check if the old image file exists before trying to delete it
-        if (fs.existsSync(oldImagePath)) {
-            // Delete the old image file
-            fs.unlinkSync(oldImagePath);
-        }
+
+        const newImageFilename = imgObj.filename;
+        const newImagePath = path.join('public', 'crm', newImageFilename);
+
+        fs.unlinkSync(oldImagePath);
+
 
         // Update the carousel item
         if(title){
