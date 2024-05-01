@@ -65,6 +65,7 @@ router.get('/protected',adminAuth,adminController.Protected);
 router.get('/getCarousel',adminController.getCarousel);
 router.get('/get-carousel-by-id/:id',adminController.getCarouselById);
 router.get('/get-crms',adminController.getCrm);
+router.get('/get-leaves',adminController.getLeave)
 
 router.delete('/deleteCarousel/:id',adminAuth,adminController.deleteCarousel);
 router.delete('/delete-calender-events/:id',adminAuth,adminController.deleteCalenderEvents);

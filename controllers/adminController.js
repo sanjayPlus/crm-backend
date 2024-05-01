@@ -8,7 +8,8 @@ const fs = require('fs');
 const path = require('path');
 const Calender = require('../models/Calender');
 const crms = require('../models/crmModel');
-
+const assignment = require('../models/Assignments');
+const Leave = require('../models/Leave');
 // register
 // const register = async (req, res) => {
 //     console.log("Inside register API");
@@ -117,12 +118,12 @@ const getCarousel = async (req, res) => {
 const getCarouselById = async (req, res) => {
     try {
         const { id } = req.params;
-        const carouselcache = await Cache.get('carousel');
+        const carouselcache = await Cache.get(`carousel_${id}`);
         if (carouselcache) {
-                return res.status(200).json(carouselcache);  
+            return res.status(200).json(carouselcache);  
         }
         const carousel = await Carousel.findById(id);
-        Cache.set('carousel', carousel, catchTime);
+        Cache.set(`carousel_${id}`, carousel, catchTime);
 
         res.status(200).json({ carousel });
     } catch (error) {
@@ -130,6 +131,7 @@ const getCarouselById = async (req, res) => {
         console.error(error);
     }
 };
+
 
 
 
@@ -169,6 +171,9 @@ const updateCarousel = async (req, res) => {
         const { id } = req.params;
         const { title, description, link } = req.body;
         const imgObj = req.file;
+        if(!imgObj || !imgObj.filename){
+            return res.status(400).json({ error: "Image file is missing or invalid" });
+        }
 
         const updatedCarousel = await Carousel.findByIdAndUpdate(id, {
             title,
@@ -180,18 +185,16 @@ const updateCarousel = async (req, res) => {
             return res.status(404).json({ error: "Carousel not found" });
         }
 
-
         // Construct the path to the old image file
         const oldImageFilename = updatedCarousel.image;
         const filename = oldImageFilename.split('/').pop(); // Get the last part (filename)
         const oldImagePath = path.join('public', 'carousel', filename);
 
-        // Construct the path to the new image file
-        const newImageFilename = imgObj.filename;
-        const newImagePath = path.join('public', 'carousel', newImageFilename);
-
-        // Delete the old image file
-        fs.unlinkSync(oldImagePath);
+        // Check if the old image file exists before trying to delete it
+        if (fs.existsSync(oldImagePath)) {
+            // Delete the old image file
+            fs.unlinkSync(oldImagePath);
+        }
 
         // Update the carousel cache
         const carouselCache = await Carousel.find().sort({ _id: -1 });
@@ -357,6 +360,45 @@ const updateCrm =async (req,res)=>{
     }
 };
 
+const addAssignments = async (req, res) => {
+    try {
+        const { title, subject, assignmentType, issueDate, dueDate, priority,createdBy } = req.body;
+        const assignments = await assignment.create({
+            title,
+            subject,
+            assignmentType,
+            issueDate,
+            dueDate,
+            priority,
+            createdBy: req.admin.id
+            
+        });
+        const cacheDate = await assignment.find().sort({ _id: -1 });
+        Cache.set('assignment', cacheDate, catchTime);
+        res.status(200).json({ assignments });
+    } catch (error) {
+        res.status(500).json({ error: "Internal Server Error", message: error.message });
+    }   
+};
+
+
+const getLeave =async(req,res)=>{
+    try {       
+           const leaves  =  await Cache.get('leaves')
+           if (leaves) {
+            return res.status(200).json(leaves);
+           }
+           const leave =await Leave.find().sort({_id: -1});
+           Cache.set('leaves',leave ,catchTime)
+            res.status(200).json({leave})
+
+    } catch (error) {
+        console.log("error");
+        res.status(500).json({ error: "Internal Server Error", message: error.message });
+
+    }
+};
+
 module.exports = {
     // register,
     adminLogin,
@@ -372,4 +414,6 @@ module.exports = {
     getCarouselById,
     getCrm,
     updateCrm,
+    addAssignments,
+    getLeave
 }
