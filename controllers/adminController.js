@@ -3,7 +3,7 @@ const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken');
 const Carousel = require('../models/carousel')
 const Cache = require('../middlewares/Cache');
-const catchTime = 600;
+const catchTime = 400;
 const fs = require('fs');
 const path = require('path');
 const Calender = require('../models/Calender');
@@ -115,22 +115,22 @@ const getCarousel = async (req, res) => {
     }
 };
 
-const getCarouselById = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const carouselcache = await Cache.get(`carousel_${id}`);
-        if (carouselcache) {
-            return res.status(200).json(carouselcache);  
-        }
-        const carousel = await Carousel.findById(id);
-        Cache.set(`carousel_${id}`, carousel, catchTime);
+// const getCarouselById = async (req, res) => {
+//     try {
+//         const { id } = req.params;
+//         const carouselcache = await Cache.get(`carousel_${id}`);
+//         if (carouselcache) {
+//             return res.status(200).json(carouselcache);  
+//         }
+//         const carousel = await Carousel.findById(id);
+//         Cache.set(`carousel_${id}`, carousel, catchTime);
 
-        res.status(200).json({ carousel });
-    } catch (error) {
-        res.status(500).json({ error: "Internal Server Error", message: error.message });
-        console.error(error);
-    }
-};
+//         res.status(200).json({ carousel });
+//     } catch (error) {
+//         res.status(500).json({ error: "Internal Server Error", message: error.message });
+//         console.error(error);
+//     }
+// };
 
 
 
@@ -211,8 +211,28 @@ const updateCarousel = async (req, res) => {
         const carouselCache = await Carousel.find().sort({ _id: -1 });
         Cache.set('carousel', carouselCache, catchTime);
 
+        // Update the cache for the individual item
+        Cache.set(`carousel_${id}`, updatedCarousel, catchTime);
+
         // Send the response after the cache is updated
         res.status(200).json({ message: "Carousel updated successfully", updatedCarousel });
+    } catch (error) {
+        res.status(500).json({ error: "Internal Server Error", message: error.message });
+        console.error(error);
+    }
+};
+
+const getCarouselById = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const carouselcache = await Cache.get(`carousel_${id}`);
+        if (carouselcache) {
+            return res.status(200).json(carouselcache);  
+        }
+        const carousel = await Carousel.findById(id);
+        Cache.set(`carousel_${id}`, carousel, catchTime);
+
+        res.status(200).json({ carousel });
     } catch (error) {
         res.status(500).json({ error: "Internal Server Error", message: error.message });
         console.error(error);
