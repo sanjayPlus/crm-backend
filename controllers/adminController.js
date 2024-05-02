@@ -3,7 +3,7 @@ const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken');
 const Carousel = require('../models/carousel')
 const Cache = require('../middlewares/Cache');
- const catchTime = 400;
+ const catchTime = 200;
 const fs = require('fs');
 const path = require('path');
 const Calender = require('../models/Calender');
@@ -345,28 +345,27 @@ const addCrm = async (req, res) => {
         
         const cacheDate = await crms.find().sort({ _id: -1 });
         Cache.set('crms', cacheDate, catchTime); // Use 'crms' as the cache key
-        res.status(200).json({crmDetails});
+        res.status(200).json(crmDetails);
     } catch (error) {
         console.log("error");
         res.status(500).json({ error: "Internal Server Error", message: error.message });
     }
 };
 
-const getCrm =async (req,res)=>{
+const getCrm = async (req, res) => {
     try {
-        const crmCache = await Cache.get('crms') // Use 'crms' as the cache key
+        const crmCache = await Cache.get('crms'); // Use 'crms' as the cache key
         if (crmCache) {
             return res.status(200).json(crmCache);
         }
         const crm = await crms.find().sort({_id: -1});
-        Cache.set('crms',crm,catchTime); // Use 'crms' as the cache key
+         Cache.set('crms', crm, catchTime); // Use 'crms' as the cache key
         res.status(200).json({crm});
     } catch (error) {
-        console.log("error");
+        console.error(error); // It's better to use console.error for logging errors
         res.status(500).json({ error: "Internal Server Error", message: error.message });
     }
 };
-
 const deletecrm = async (req, res) => {
     try {
         const { id } = req.params;
