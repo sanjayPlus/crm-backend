@@ -374,8 +374,6 @@ const deletecrm = async (req, res) => {
         if (!deletedCRM) {
             return res.status(404).json({ error: "CRM not found" });
         }
-        const crmCache = await crms.find().sort({ _id: -1 });
-        Cache.set('crm', crmCache, catchTime);
 
         // Extract the filename from the full URL ./public/crm/abc.png
         const imageUrl = deletedCRM.image;
@@ -388,8 +386,8 @@ const deletecrm = async (req, res) => {
         fs.unlinkSync(imagePath);
 
         // Update the carousel cache
-        // const crmCache = await crms.find().sort({ _id: -1 });
-        // Cache.set('crm', crmCache, catchTime);
+        const crmCache = await crms.find().sort({ _id: -1 });
+        Cache.set('crm', crmCache, catchTime);
 
         res.status(200).json({ message: "CRM deleted successfully" });
     } catch (error) {
@@ -447,19 +445,22 @@ const updateCrm = async (req, res) => {
             crmItem.salary = salary;
         }
 
+        if(imgObj){
+            crmItem.image = `${process.env.DOMAIN}/crm/${imgObj.filename}`;
+        }
         
         // Save the updated carousel item
         const updatedcrm = await crmItem.save();
 
         // // Update the carousel cache
-        const carouselCrm = await crms.find().sort({ _id: -1 });
-        Cache.set('crm', carouselCrm, catchTime);
+        const crmCache = await crms.find().sort({ _id: -1 });
+        Cache.set('crm', crmCache, catchTime);
 
         // Update the cache for the individual item
         Cache.set(`crm_${id}`, updatedcrm, catchTime);
 
         // Send the response after the cache is updated
-        res.status(200).json({ message: "Carousel updated successfully", updatedcrm });
+        res.status(200).json({ message: "CRM updated successfully", updatedcrm });
     } catch (error) {
         res.status(500).json({ error: "Internal Server Error", message: error.message });
         console.error(error);
