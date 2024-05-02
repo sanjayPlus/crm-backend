@@ -370,10 +370,12 @@ const getCrm =async (req,res)=>{
 const deletecrm = async (req, res) => {
     try {
         const { id } = req.params;
-        const deletedCRM = await crms.findByIdAndDelete({ _id: id });
+        const deletedCRM = await crms.findByIdAndDelete(id);
         if (!deletedCRM) {
             return res.status(404).json({ error: "CRM not found" });
         }
+        const crmCache = await crms.find().sort({ _id: -1 });
+        Cache.set('crm', crmCache, catchTime);
 
         // Extract the filename from the full URL ./public/crm/abc.png
         const imageUrl = deletedCRM.image;
@@ -386,8 +388,8 @@ const deletecrm = async (req, res) => {
         fs.unlinkSync(imagePath);
 
         // Update the carousel cache
-        const crmCache = await crms.find().sort({ _id: -1 });
-        Cache.set('crm', crmCache, catchTime);
+        // const crmCache = await crms.find().sort({ _id: -1 });
+        // Cache.set('crm', crmCache, catchTime);
 
         res.status(200).json({ message: "CRM deleted successfully" });
     } catch (error) {
