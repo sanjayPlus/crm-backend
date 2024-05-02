@@ -3,7 +3,7 @@ const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken');
 const Carousel = require('../models/carousel')
 const Cache = require('../middlewares/Cache');
- const catchTime = 100;
+ const catchTime = 400;
 const fs = require('fs');
 const path = require('path');
 const Calender = require('../models/Calender');
@@ -366,34 +366,7 @@ const getCrm = async (req, res) => {
         res.status(500).json({ error: "Internal Server Error", message: error.message });
     }
 };
-const deletecrm = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const deletedCRM = await crms.findByIdAndDelete(id);
-        if (!deletedCRM) {
-            return res.status(404).json({ error: "CRM not found" });
-        }
 
-        // Extract the filename from the full URL ./public/crm/abc.png
-        const imageUrl = deletedCRM.image;
-        const filename = imageUrl.split('/').pop(); // Get the last part (filename)
-
-        // Construct the path to the image file
-        const imagePath = path.join('public', 'crm', filename);
-
-        // Delete the image file
-        fs.unlinkSync(imagePath);
-
-        // Update the carousel cache
-        const crmCache = await crms.find().sort({ _id: -1 });
-        Cache.set('crm', crmCache, catchTime);
-
-        res.status(200).json({ message: "CRM deleted successfully" });
-    } catch (error) {
-        res.status(500).json({ error: "Internal Server Error", message: error.message });
-        console.error(error);
-    }
-};
 // const getCrm =async (req,res)=>{
 //     try {
 //         const crmCache = await Cache.get('crms')
@@ -408,6 +381,61 @@ const deletecrm = async (req, res) => {
 //         res.status(500).json({ error: "Internal Server Error", message: error.message });
 //     }
 // };
+
+// const deletecrm = async (req, res) => {
+//     try {
+//         const { id } = req.params;
+//         const deletedCRM = await crms.findByIdAndDelete(id);
+//         if (!deletedCRM) {
+//             return res.status(404).json({ error: "CRM not found" });
+//         }
+
+//         // Extract the filename from the full URL ./public/crm/abc.png
+//         const imageUrl = deletedCRM.image;
+//         const filename = imageUrl.split('/').pop(); // Get the last part (filename)
+
+//         // Construct the path to the image file
+//         const imagePath = path.join('public', 'crm', filename);
+
+//         // Delete the image file
+//         fs.unlinkSync(imagePath);
+
+//         // Update the carousel cache
+//         const crmCache = await crms.find().sort({ _id: -1 });
+//         Cache.set('crm', crmCache, catchTime);
+
+//         res.status(200).json({ message: "CRM deleted successfully" });
+//     } catch (error) {
+//         res.status(500).json({ error: "Internal Server Error", message: error.message });
+//         console.error(error);
+//     }
+// };
+
+
+// new delete crm
+const deletecrm = async (req, res) => {
+    const {id} = req.params;
+    try {
+        const deletedCrm = await crms.findByIdAndDelete({_id:id});
+        if (!deletedCrm) {
+            return res.status(404).json({ error: "CRM not found" });
+        }else{
+            // delete the image file from /public/crm
+            const imageUrl = deletedCrm.image;
+            const filename = imageUrl.split('/').pop(); // Get the last part (filename)
+            const imagePath = path.join('public', 'crm', filename);
+            fs.unlinkSync(imagePath);
+            // update the carousel cache
+            const crmCache = await crms.find().sort({ _id: -1 });
+            Cache.set('crms', crmCache, catchTime);
+            
+            res.status(200).json({ message: "CRM deleted successfully", deletedCrm });
+        }
+    } catch (error) {
+        res.status(500).json({ error: "Internal Server Error", message: error.message });
+        console.error(error);
+    }
+}
 
 const updateCrm = async (req, res) => {
     try {
