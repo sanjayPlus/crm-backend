@@ -345,7 +345,7 @@ const addCrm = async (req, res) => {
         
         const cacheDate = await crms.find().sort({ _id: -1 });
         Cache.set('crms', cacheDate, catchTime); // Use 'crms' as the cache key
-        res.status(200).json(crmDetails);
+        res.status(200).json({crmDetails});
     } catch (error) {
         console.log("error");
         res.status(500).json({ error: "Internal Server Error", message: error.message });
