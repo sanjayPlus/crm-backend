@@ -370,31 +370,22 @@ const getCrm =async (req,res)=>{
 const deletecrm = async (req, res) => {
     try {
         const { id } = req.params;
-        const deletedCRM = await crms.findByIdAndDelete({_id: id});
+        const deletedCRM = await crms.findByIdAndDelete({ _id: id });
         if (!deletedCRM) {
             return res.status(404).json({ error: "CRM not found" });
         }
 
-        // Extract the filename from the full URL
+        // Extract the filename from the full URL ./public/crm/abc.png
         const imageUrl = deletedCRM.image;
         const filename = imageUrl.split('/').pop(); // Get the last part (filename)
 
         // Construct the path to the image file
         const imagePath = path.join('public', 'crm', filename);
 
-        
-        // Check if the file exists before trying to delete
-        if(fs.existsSync(imagePath)) {
-
-            // Delete the file
-            fs.unlinkSync(imagePath);
-        }else{
-            console.log(`File  not found: ${imagePath}` );
-        }
         // Delete the image file
-        // fs.unlinkSync(imagePath);
+        fs.unlinkSync(imagePath);
 
-        // Update the crm cache
+        // Update the carousel cache
         const crmCache = await crms.find().sort({ _id: -1 });
         Cache.set('crm', crmCache, catchTime);
 
