@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken')
 const assignment = require('../models/Assignments')
 const Cache = require('../middlewares/Cache');
 const Leave = require('../models/Leave');
+const users = require('../models/userModel');
 const catchTime = 600;
 
 // register
@@ -138,6 +139,60 @@ const addLeave = async (req, res) => {
 
 };
 
+const addUsers = async(req,res)=>{
+     try {
+        const {name,email,password,
+            users_type,phone_number,whatsapp,facebook,instagram,registeration_fee,
+            registeration_date,documentation_date,documentation_fee,address,
+            location,age,qualification,program_type,language_status,teachers,teacherid,home,
+            training_fee,no,date,fee,batch,preparation_fee,profile_image,crm_joinId,visits,visitdate}=req.body;
+
+            const usersDetails = await users.create({name,email,password,
+                users_type,phone_number,whatsapp,facebook,instagram,registeration_fee,
+                registeration_date,documentation_date,documentation_fee,address,teachers:[],training_fee:[],
+                location,age,qualification,program_type,language_status,
+                no,date,fee,batch,preparation_fee,
+                profile_image:`${process.env.DDOMAIN}/user/${imgObj.filenme}`,
+                crm_joinId,visits:[],visitdate
+                
+            })
+            usersDetails.teachers.push({teacherid,home})
+            usersDetails.training_fee.push({no,date,fee})
+            usersDetails.visits.push({visitdate})
+
+            await usersDetails.save()
+
+            res.status(200).json({usersDetails})
+
+     } catch (error) {
+        console.log("error");
+        res.status(500).json({ error: "Internal Server Error", message: error.message });
+
+     }
+};
+
+const getUsers =async(req,res)=>{
+    try {
+      
+        const getUsersDetails = await users.find({});
+        
+         res.status(200).json(getUsersDetails)
+    } catch (error) {
+        res.status(500).json({ error: "Internal Server Error", message: error.message });
+    }
+};
+
+const deleteUser =async(req,res)=>{
+    try {
+        const deleteUsers= await users.findByIdAndDelete({_id: req.params.id})
+        res.status(200).json(deleteUsers)
+    } catch (error) {
+
+    res.status(500).json({ error: "Internal Server Error", message: error.message });
+
+    }
+};
+
 module.exports = {
     register,
     crmLogin,
@@ -145,4 +200,7 @@ module.exports = {
     protected,
     addAssignments,
     addLeave,
+    addUsers,
+    getUsers,
+    deleteUser
 }
