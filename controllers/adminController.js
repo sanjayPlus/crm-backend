@@ -326,7 +326,7 @@ const deleteCalenderEvents = async (req, res) => {
 const addCrm = async (req, res) => {
     try {
         const { name, email, password, phone1, phone2, whatsapp, instagram, address,
-            guardian, dateofBirth, program, joingdate, salary } = req.body;
+            guardian,guardian_name,guardian_phone, dateofBirth, program, joingdate, salary } = req.body;
         
         const crmDetails = await crms.create({
             name,
