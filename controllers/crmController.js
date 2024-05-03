@@ -5,6 +5,9 @@ const assignment = require('../models/Assignments')
 const Cache = require('../middlewares/Cache');
 const Leave = require('../models/Leave');
 const catchTime = 600;
+const XLSX = require('xlsx');
+const leadsModel  =require('../models/leadsModel')
+const fs=require('fs')
 
 // register
 const register = async (req, res) => {
@@ -138,6 +141,63 @@ const addLeave = async (req, res) => {
 
 };
 
+// add data from excel
+const excelfileupload = async (req, res) => {
+    try {
+        
+        if (!req.file) {
+            return res.status(400).send('No file uploaded.'); 
+        }
+
+        const excelFilePath = req.file.path;
+        const workbook = XLSX.readFile(excelFilePath);
+        const sheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[sheetName];
+        const jsonData = XLSX.utils.sheet_to_json(worksheet);
+
+        const documents = jsonData.map((item,index) => {
+            const { name, phoneno } = item;
+            return { name, phoneno, leadno:index+1 };
+        });
+
+        const insertedDocuments = await leadsModel.insertMany(documents);
+        res.status(200).json(insertedDocuments); 
+    } catch (error) {
+        console.error('Error processing Excel file:', error);
+        res.status(500).send('Internal Server Error');
+    }
+    // finally{
+    //     fs.unlinkSync(req.file.path);
+    //     console.log('deleted successfully');
+    // }
+};
+
+// get all leads
+const getleads=async(req,res)=>
+{
+    try {
+        const data = await leadsModel.find();
+        res.status(200).json(data);
+    } catch (error) {
+        res.status(500).json({ error: "Internal Server Error", message: error.message });
+        console.error(error);
+    }
+}
+
+// get leads by id
+const getleadsbyid=async(req,res)=>
+{
+    const {id}=req.params;
+    // console.log(id);
+    try {
+        const data = await leadsModel.findById(id);
+        res.status(200).json(data);
+    }
+    catch (error) {
+        res.status(500).json({ error: "Internal Server Error", message: error.message });
+        console.error(error);
+    }
+}
 
 
 module.exports = {
@@ -147,4 +207,7 @@ module.exports = {
     protected,
     addAssignments,
     addLeave,
+    excelfileupload,
+    getleads,
+    getleadsbyid,
 }
