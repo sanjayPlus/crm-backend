@@ -354,7 +354,7 @@ const addCrm = async (req, res) => {
 const getCrm = async (req, res) => {
     try {
         const crm = await crms.find().sort({ _id: -1 });
-        res.status(200).json({ crm });
+        res.status(200).json(crm);
         
     } catch (error) {
         res.status(500).json({ error: "Internal Server Error", message: error.message });
@@ -518,7 +518,7 @@ const deleteLeads = async (req, res) => {
 
 const addAssignments = async (req, res) => {
     try {
-        const { title, subject, assignmentType, issueDate, dueDate, priority,createdBy } = req.body;
+        const { title, subject, assignmentType, issueDate, dueDate, priority } = req.body;
         const assignments = await assignment.create({
             title,
             subject,
