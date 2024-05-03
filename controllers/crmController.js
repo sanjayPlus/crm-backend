@@ -165,10 +165,10 @@ const excelfileupload = async (req, res) => {
         console.error('Error processing Excel file:', error);
         res.status(500).send('Internal Server Error');
     }
-    finally{
-        fs.unlinkSync(req.file.path);
-        console.log('deleted successfully');
-    }
+    // finally{
+    //     fs.unlinkSync(req.file.path);
+    //     console.log('deleted successfully');
+    // }
 };
 
 // get all leads
