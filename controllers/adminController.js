@@ -337,12 +337,16 @@ const addCrm = async (req, res) => {
             whatsapp,
             instagram,
             address,
-            guardian,
+            guardian:[],
             dateofBirth,
             program,
             joingdate,
             salary
-        });   
+        });  
+         crmDetails.guardian.push({guardian_name,guardian_phone})
+
+         await crmDetails.save()
+        
         res.status(200).json({message:"crms added successfully", crmDetails});
     } catch (error) {
         console.log("error");
