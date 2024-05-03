@@ -325,8 +325,8 @@ const deleteCalenderEvents = async (req, res) => {
 
 const addCrm = async (req, res) => {
     try {
-        const { name, email, password, phone1,phone2,whatsapp,instagram,address,
-            guardian_name,guardian_phone, dateofBirth, program,  joingdate, salary } = req.body;
+        const { name, email, password, phone1, phone2, whatsapp, instagram, address,
+            guardian, dateofBirth, program, joingdate, salary } = req.body;
         
         const crmDetails = await crms.create({
             name,
@@ -337,8 +337,7 @@ const addCrm = async (req, res) => {
             whatsapp,
             instagram,
             address,
-            guardian_name,
-            guardian_phone,
+            guardian,
             dateofBirth,
             program,
             joingdate,
@@ -377,7 +376,7 @@ const updateCrm = async (req, res) => {
     try {
         const { id } = req.params;
         const { name, email, password, phone1,phone2,whatsapp,instagram,address,
-            guardian_name,guardian_phone, dateofBirth, program, joingdate, salary } = req.body;
+             dateofBirth, program, joingdate, salary } = req.body;
         const crm = await crms.findById(id);
         if (!crm) {
             return res.status(404).json({ error: "Crm not found" });
@@ -406,12 +405,8 @@ const updateCrm = async (req, res) => {
         if(address){
             crm.address = address;
         }
-        if(guardian_name){
-            crm.guardian_name = guardian_name;
-        }
-        if(guardian_phone){
-            crm.guardian_phone = guardian_phone;
-        }
+        
+       
         if(dateofBirth){
             crm.dateofBirth = dateofBirth;
         }
