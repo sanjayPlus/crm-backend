@@ -326,7 +326,7 @@ const deleteCalenderEvents = async (req, res) => {
 const addCrm = async (req, res) => {
     try {
         const { name, email, password, phone1,phone2,whatsapp,instagram,address,
-            guardian_name,guardian_phone, dateofBirth, program, guardian, joingdate, salary } = req.body;
+            guardian_name,guardian_phone, dateofBirth, program,  joingdate, salary } = req.body;
         
         const crmDetails = await crms.create({
             name,
@@ -341,7 +341,6 @@ const addCrm = async (req, res) => {
             guardian_phone,
             dateofBirth,
             program,
-            guardian,
             joingdate,
             salary
         });   
@@ -378,7 +377,7 @@ const updateCrm = async (req, res) => {
     try {
         const { id } = req.params;
         const { name, email, password, phone1,phone2,whatsapp,instagram,address,
-            guardian_name,guardian_phone, dateofBirth, program, guardian, joingdate, salary } = req.body;
+            guardian_name,guardian_phone, dateofBirth, program, joingdate, salary } = req.body;
         const crm = await crms.findById(id);
         if (!crm) {
             return res.status(404).json({ error: "Crm not found" });
@@ -419,9 +418,6 @@ const updateCrm = async (req, res) => {
         if(program){
             crm.program = program;
         }
-        if(guardian){
-            crm.guardian = guardian;
-        }
         if(joingdate){
             crm.joingdate = joingdate;
         }
@@ -450,7 +446,7 @@ const deleteCrm = async (req, res) => {
 
 const addleadsByExcelUpload = async (req, res) => {
     try {
-        const{excel_type, uploaded_by} = req.body;
+        const{excel_type} = req.body;
         if (!req.file) {
             return res.status(400).send('No file uploaded.'); 
         }
