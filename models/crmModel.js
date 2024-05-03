@@ -12,42 +12,7 @@ const crmSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-<<<<<<< HEAD
-    // phoneno:{
-    //     type:String,
-    //     required:true
-    // },
-    // dateofBirth:{
-    //     type:String,
-    //     required:true
-    // },
-    // program:{
-    //     type:String,
-    //     required:true
-    // },
-    // guardian:{
-    //     type:String,
-    //     required:true
-    // },
-    // joingdate: {
-    //     type:String,
-    //     required:true
-    // },
-    // salary: {
-    //     type:String,
-    //     required:true
-    // },
-    // image: {
-    //     type: String,
-    //     required: true
-    // },
-    
-=======
     phone1: {
-        type: String,
-        required: true
-    },
-    phone2: {
         type: String,
         required: true
     },
@@ -62,6 +27,9 @@ const crmSchema = new mongoose.Schema({
     instagram: {
         type: String,
         required: true
+    },
+    address:{
+        type:String
     },
 
     dateofBirth: {
@@ -157,7 +125,6 @@ const crmSchema = new mongoose.Schema({
         },
     }],
 
->>>>>>> 2b9e05a78ce6a86c0daf78a53a89fb752c4882df
 })
 
 const crms = mongoose.model('crms', crmSchema)
