@@ -10,6 +10,8 @@ const Calender = require('../models/Calender');
 const crms = require('../models/crmModel');
 const assignment = require('../models/Assignments');
 const Leave = require('../models/Leave');
+const XLSX = require('xlsx');
+const leadsModel = require('../models/leadsModel');
 // register
 // const register = async (req, res) => {
 //     console.log("Inside register API");
@@ -278,9 +280,7 @@ const addCalenderEvents = async (req, res) => {
             description,
             date
 
-        })
-        const cacheDate = await Calender.find().sort({ _id: -1 });
-        Cache.set('calender', cacheDate, catchTime);
+        })    
         res.status(200).json(calenderEvents);
 
     } catch (error) {
@@ -289,18 +289,22 @@ const addCalenderEvents = async (req, res) => {
     }
 };
 
-const getCalenderEvent =async(req,res)=>{
+const getCalenderEvents = async (req, res) => {
     try {
-        const CalenderCache = await Cache.get('calender')
-        if(CalenderCache){
-            return res.status(200).json(CalenderCache);
-        }
-        const calender = await Calender.find().sort({_id: -1});
-        Cache.set('calender',calender,catchTime);
-        res.status(200).json({calender}) 
+        const calenderEvents = await Calender.find().sort({ _id: -1 });
+        res.status(200).json({ calenderEvents });
     } catch (error) {
-        console.log("error");
-        res.status(500).json({ error: "Internal Server Error", message: error.message });
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+};
+
+const getCalenderEventsById = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const calenderEvents = await Calender.findById(id);
+        res.status(200).json({ calenderEvents });
+    } catch (error) {
+        res.status(500).json({ error: "Internal Server Error" });
     }
 };
 
@@ -312,8 +316,7 @@ const deleteCalenderEvents = async (req, res) => {
         if (!deletedCalenderEvents) {
             return res.status(404).json({ error: "Calender not found" });
         }
-        const cacheDate = await Calender.find().sort({ _id: -1 });
-        Cache.set('calender', cacheDate, catchTime);
+        
         res.status(200).json({ message: "Calender deleted successfully" });
     } catch (error) {
         res.status(500).json({ error: "Internal Server Error" });
@@ -322,136 +325,195 @@ const deleteCalenderEvents = async (req, res) => {
 
 const addCrm = async (req, res) => {
     try {
-        const { name, email, password, phoneno,
-            dateofBirth, program, guardian, joingdate, salary } = req.body;
-        const imgObj = req.file;
-
-        if (!imgObj || !imgObj.filename) {
-            return res.status(400).json({ error: "Image is required" });
-        }
-
+        const { name, email, password, phone1, phone2, whatsapp, instagram, address,
+            guardian, dateofBirth, program, joingdate, salary } = req.body;
+        
         const crmDetails = await crms.create({
             name,
             email,
             password,
-            phoneno,
+            phone1,
+            phone2,
+            whatsapp,
+            instagram,
+            address,
+            guardian,
             dateofBirth,
             program,
-            guardian,
             joingdate,
-            salary,
-            image: `${process.env.DOMAIN}/crm/${imgObj.filename}`
-        });
-        
-        const cacheDate = await crms.find().sort({ _id: -1 });
-        Cache.set('crms', cacheDate, catchTime); // Use 'crms' as the cache key
-        res.status(200).json(crmDetails);
+            salary
+        });   
+        res.status(200).json({message:"crms added successfully", crmDetails});
     } catch (error) {
         console.log("error");
         res.status(500).json({ error: "Internal Server Error", message: error.message });
     }
 };
 
-const getCrm =async (req,res)=>{
+const getCrm = async (req, res) => {
     try {
-        const crmCache = await Cache.get('crms') // Use 'crms' as the cache key
-        if (crmCache) {
-            return res.status(200).json(crmCache);
-        }
-        const crm = await crms.find().sort({_id: -1});
-        Cache.set('crms',crm,catchTime); // Use 'crms' as the cache key
-        res.status(200).json({crm});
+        const crm = await crms.find().sort({ _id: -1 });
+        res.status(200).json(crm);
+        
     } catch (error) {
-        console.log("error");
         res.status(500).json({ error: "Internal Server Error", message: error.message });
+        console.error(error);
+        
     }
-};
+}
 
-const deletecrm = async (req, res) => {
+const getCrmById = async (req, res) => {
     try {
         const { id } = req.params;
-        const deletedCRM = await crms.findByIdAndDelete(id);
-        if (!deletedCRM) {
-            return res.status(404).json({ error: "Carousel not found" });
-        }
-
-        // Extract the filename from the full URL
-        const imageUrl = deletedCRM.image;
-        const filename = imageUrl.split('/').pop(); // Get the last part (filename)
-
-        // Construct the path to the image file
-        const imagePath = path.join('public', 'crm', filename);
-
-        // Delete the image file
-        fs.unlinkSync(imagePath);
-
-        // Update the carousel cache
-        const crmCache = await crms.find().sort({ _id: -1 });
-        Cache.set('crm', crmCache, catchTime);
-
-        res.status(200).json({ message: "CRM deleted successfully" });
+        const crm = await crms.findById(id);
+        res.status(200).json({ crm });
     } catch (error) {
         res.status(500).json({ error: "Internal Server Error", message: error.message });
         console.error(error);
     }
-};
-// const getCrm =async (req,res)=>{
-//     try {
-//         const crmCache = await Cache.get('crms')
-//         if (crmCache) {
-//             return res.status(200).json(crmCache);
-//         }
-//         const crm = await crms.find().sort({_id: -1});
-//         Cache.set('crms',crm,catchTime);
-//         res.status(200).json({crm});
-//     } catch (error) {
-//         console.log("error");
-//         res.status(500).json({ error: "Internal Server Error", message: error.message });
-//     }
-// };
-
-const updateCrm =async (req,res)=>{
+}
+const updateCrm = async (req, res) => {
     try {
-        const {id}= req.params;
-        const {phoneno,program,salary} = req.body;
-        const imgObj =req.file;
+        const { id } = req.params;
+        const { name, email, password, phone1,phone2,whatsapp,instagram,address,
+             dateofBirth, program, joingdate, salary } = req.body;
+        const crm = await crms.findById(id);
+        if (!crm) {
+            return res.status(404).json({ error: "Crm not found" });
+        }
+        if(name){
+            crm.name = name;
+        }
+        if(email){
+            crm.email = email;
+        }
+        if(password){
+            crm.password = password;
+        }
+        if(phone1){
+            crm.phone1 = phone1;
+        }
+        if(phone2){
+            crm.phone2 = phone2;
+        }
+        if(whatsapp){
+            crm.whatsapp = whatsapp;
+        }
+        if(instagram){
+            crm.instagram = instagram;
+        }
+        if(address){
+            crm.address = address;
+        }
+        
+       
+        if(dateofBirth){
+            crm.dateofBirth = dateofBirth;
+        }
+        if(program){
+            crm.program = program;
+        }
+        if(joingdate){
+            crm.joingdate = joingdate;
+        }
+        if(salary){
+            crm.salary = salary;
+        }
+        await crm.save();
+        res.status(200).json({ message: "Crm updated successfully", crm });
+    } catch (error) {
+        res.status(500).json({ error: "Internal Server Error", message: error.message });
+        console.error(error);
+        }
+}
+const deleteCrm = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const deletedCrm = await crms.findByIdAndDelete(id);
+        if (!deletedCrm) {
+            return res.status(404).json({ error: "Crm not found" });
+        }
+        res.status(200).json({ message: "Crm deleted successfully" });
+    } catch (error) {
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+}
 
-        const updatedcrm = await crms.findByIdAndUpdate(id,{
-            phoneno,
-            program,
-            salary,
-            image:`${process.env.DOMAIN}/public/crm/${imgObj.filename}`
-        });
-        if (!updatedcrm) {
-            return res.status(404).json({error: "CRM not found"})
+const addleadsByExcelUpload = async (req, res) => {
+    try {
+        const{excel_type} = req.body;
+        if (!req.file) {
+            return res.status(400).send('No file uploaded.'); 
         }
 
-        const oldImageFilename = updatedcrm.image;
-        const filename = oldImageFilename.split('/').pop();
-        const oldImagePath = path.join('public', 'crm',filename);
+        const buffer = req.file.buffer;
+        const workbook = XLSX.read(buffer, { type: 'buffer' });
+        const sheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[sheetName];
+        const jsonData = XLSX.utils.sheet_to_json(worksheet);
+        const fields = Object.keys(jsonData[0]);
+        const dataArray = jsonData.map((row,index) => {
+            const dataObjects = {};
+            fields.forEach((field)=>{
+                dataObjects[field] = row[field];
+            });
+            dataObjects.serial_number = index + 2;
+            return dataObjects;
+        
+        })
 
+        dataArray.map(async (data) => {
+            const leads = await leadsModel.create({
+                serial_number: data.serial_number,
+                name: data.full_name,
+                email: data.email,
+                phone_number: data.phone_number,
+                city: data.city,
+                excel_type,
+                uploaded_by:req.admin.id,
+                uploaded_crm_name: req.admin.name
+            });
+        })
 
-        const newImageFilename = imgObj.filename;
-        const newImagePath = path.join('public', 'crm', newImageFilename);
-
-        fs.unlinkSync(oldImagePath);
-
-
-        const crmCache = await crms.find().sort({_id: -1})
-        Cache.set('crm', crmCache ,catchTime);
-
-        res.status(200).json({ message: "CRM updated successfully" });
-
-
+        res.status(200).json({ message: "Data inserted successfully", dataArray });
     } catch (error) {
-        console.log("error");
-        res.status(500).json({ error: "Internal Server Error", message: error.message });
+        console.error('Error processing Excel file:', error);
+        res.status(500).send('Internal Server Error');
     }
+    
 };
+
+const deleteallleads = async (req, res) => {
+    try {
+        const deletedleads = await leadsModel.deleteMany();
+        res.status(200).json({ message: "leads deleted successfully" });
+    } catch (error) {
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+}
+
+const getLeads = async (req, res) => {
+    try {
+        const leads = await leadsModel.find();
+        res.status(200).json({ leads });
+    } catch (error) {
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+}
+
+const deleteLeads = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const deletedleads = await leadsModel.findByIdAndDelete(id);
+        res.status(200).json({ message: "leads deleted successfully" });
+    } catch (error) {
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+}
 
 const addAssignments = async (req, res) => {
     try {
-        const { title, subject, assignmentType, issueDate, dueDate, priority,createdBy } = req.body;
+        const { title, subject, assignmentType, issueDate, dueDate, priority } = req.body;
         const assignments = await assignment.create({
             title,
             subject,
@@ -499,11 +561,17 @@ module.exports = {
     addCalenderEvents,
     addCrm,
     deleteCalenderEvents,
-    deletecrm,
+    getCrmById,
     getCarouselById,
     getCrm,
     updateCrm,
     addAssignments,
     getLeave,
-    getCalenderEvent 
+    getCalenderEvents,
+    getCalenderEventsById,
+    deleteCrm,
+    addleadsByExcelUpload,
+    deleteallleads,
+    getLeads,
+    deleteLeads,
 }

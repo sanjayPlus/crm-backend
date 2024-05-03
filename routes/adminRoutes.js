@@ -5,6 +5,9 @@ const adminAuth = require('../middlewares/adminAuth');
 
 const router = express.Router()
 
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
+
 //carousel image
 const carouselStorage = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -60,23 +63,29 @@ const crmImage = multer({
 router.post('/login',adminController.adminLogin);
 router.post('/addCarousel', carouselImage.single('image'),adminAuth,adminController.addCarousel);
 router.post('/add-calender-events',adminAuth,adminController.addCalenderEvents);
-router.post('/add-crms', crmImage.single('image'),adminAuth,adminController.addCrm);
+router.post('/add-crms',adminAuth,adminController.addCrm);
+router.post('/add-leads',upload.single('excel'),adminAuth,adminController.addleadsByExcelUpload);
 
 
 router.get('/protected',adminAuth,adminController.Protected);
 router.get('/getCarousel',adminController.getCarousel);
 router.get('/get-carousel-by-id/:id',adminController.getCarouselById);
 router.get('/get-crms',adminController.getCrm);
+router.get('/get-crms-by-id/:id',adminController.getCrmById);
 router.get('/get-leaves',adminController.getLeave);
-router.get('/get-calender',adminController.getCalenderEvent);
+router.get('/get-calender',adminController.getCalenderEvents);
+router.get('/get-calender-by-id/:id',adminController.getCalenderEventsById);
+router.get('/get-all-leads',adminController.getLeads);
 
 
 router.delete('/deleteCarousel/:id',adminAuth,adminController.deleteCarousel);
 router.delete('/delete-calender-events/:id',adminAuth,adminController.deleteCalenderEvents);
-router.delete('/delete-crms/:id',adminAuth,adminController.deletecrm);
+router.delete('/delete-crms/:id',adminAuth,adminController.deleteCrm);
+router.delete('/delete-all-leads',adminAuth,adminController.deleteallleads);
+router.delete('/delete-leads/:id',adminAuth,adminController.deleteLeads);
 
 router.put('/updateCarousel/:id', carouselImage.single('image'),adminAuth,adminController.updateCarousel);
-router.put('/updateCrm/:id',crmImage.single('image'),adminAuth, adminController.updateCrm),
+router.put('/updateCrm/:id',adminAuth, adminController.updateCrm),
 
 
 module.exports = router
