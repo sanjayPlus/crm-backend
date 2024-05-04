@@ -67,6 +67,7 @@ router.post('/add-crms',adminAuth,adminController.addCrm);
 router.post('/add-leads',upload.single('excel'),adminAuth,adminController.addleadsByExcelUpload);
 
 
+
 router.get('/protected',adminAuth,adminController.Protected);
 router.get('/getCarousel',adminController.getCarousel);
 router.get('/get-carousel-by-id/:id',adminController.getCarouselById);
@@ -76,6 +77,7 @@ router.get('/get-leaves',adminController.getLeave);
 router.get('/get-calender',adminController.getCalenderEvents);
 router.get('/get-calender-by-id/:id',adminController.getCalenderEventsById);
 router.get('/get-all-leads',adminController.getLeads);
+
 
 
 router.delete('/deleteCarousel/:id',adminAuth,adminController.deleteCarousel);

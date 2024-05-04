@@ -12,6 +12,9 @@ const assignment = require('../models/Assignments');
 const Leave = require('../models/Leave');
 const XLSX = require('xlsx');
 const leadsModel = require('../models/leadsModel');
+const Code = require('../models/Code');
+const crypto = require('crypto');
+const QRCode = require('qrcode');
 // register
 // const register = async (req, res) => {
 //     console.log("Inside register API");
@@ -380,7 +383,7 @@ const getCrmById = async (req, res) => {
 const updateCrm = async (req, res) => {
     try {
         const { id } = req.params;
-        const { name, email, password, phone1,phone2,whatsapp,instagram,address,
+        const { name, email, phone1,phone2,whatsapp,instagram,address,
              dateofBirth, program, joingdate, salary, guardian_name,guardian_phone } = req.body;
         const crm = await crms.findById(id);
         if (!crm) {
@@ -392,9 +395,7 @@ const updateCrm = async (req, res) => {
         if(email){
             crm.email = email;
         }
-        if(password){
-            crm.password = password;
-        }
+        
         if(phone1){
             crm.phone1 = phone1;
         }
@@ -558,6 +559,10 @@ const getLeave =async(req,res)=>{
     }
 };
 
+const generateCode = function() {
+    return crypto.randomBytes(5).toString('hex');
+}
+
 module.exports = {
     // register,
     adminLogin,
@@ -582,4 +587,5 @@ module.exports = {
     deleteallleads,
     getLeads,
     deleteLeads,
+    generateCode,
 }

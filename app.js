@@ -7,6 +7,7 @@ const cors = require('cors')
 const userRoutes = require('./routes/userRoutes')
 const adminRoutes = require('./routes/adminRoutes')
 const crmRoutes = require('./routes/crmRoutes')
+const adminController = require('./controllers/adminController')
 
 
 // mongoDB connection
@@ -38,3 +39,8 @@ app.listen(PORT, (err) => {
     }
     console.log(`server is running on port ${PORT}`);
 })
+
+cron.schedule('0 8,12 * * *', () => {
+    const code = adminController.generateCode();
+    adminController.saveCode(code);
+});
