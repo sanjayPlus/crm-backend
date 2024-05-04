@@ -57,6 +57,8 @@ const crmImage = multer({
 });
 
 
+
+
 // router.post('/register',adminController.register)
 router.post('/login',adminController.adminLogin);
 router.post('/addCarousel', carouselImage.single('image'),adminAuth,adminController.addCarousel);

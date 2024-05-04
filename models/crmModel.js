@@ -20,10 +20,6 @@ const crmSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    phone2: {
-        type: String,
-        required: true
-    },
     whatsapp: {
         type: String,
         required: true
@@ -31,6 +27,9 @@ const crmSchema = new mongoose.Schema({
     instagram: {
         type: String,
         required: true
+    },
+    address:{
+        type:String
     },
 
     dateofBirth: {
