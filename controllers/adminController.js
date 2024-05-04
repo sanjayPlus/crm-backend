@@ -412,10 +412,13 @@ const updateCrm = async (req, res) => {
             crm.address = address;
         }
         
-       if(guardian_name&& guardian_phone){
-        crm.guardian[0].guardian_name = guardian_name;
-        crm.guardian[0].guardian_phone = guardian_phone;
-       }
+       // if(guardian_name&& guardian_phone){
+       //  crm.guardian[0].guardian_name = guardian_name;
+       //  crm.guardian[0].guardian_phone = guardian_phone;
+       // }
+     if(guardian){
+      crm.guardian = guardian
+     }
 
     // if(guardian_name){
     //     crm.guardian.guardian_name = guardian_name;
