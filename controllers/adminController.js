@@ -326,7 +326,7 @@ const deleteCalenderEvents = async (req, res) => {
 const addCrm = async (req, res) => {
     try {
         const { name, email, password, phone1, phone2, whatsapp, instagram, address,
-            guardian, dateofBirth, program, joingdate, salary } = req.body;
+            guardian, dateofBirth, program, joingdate, salary, guardian_name, guardian_phone } = req.body;
         
         const crmDetails = await crms.create({
             name,
@@ -341,7 +341,9 @@ const addCrm = async (req, res) => {
             dateofBirth,
             program,
             joingdate,
-            salary
+            salary,
+            guardian_name,
+            guardian_phone,
         });   
         res.status(200).json({message:"crms added successfully", crmDetails});
     } catch (error) {
