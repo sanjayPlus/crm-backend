@@ -325,7 +325,7 @@ const deleteCalenderEvents = async (req, res) => {
 
 const addCrm = async (req, res) => {
     try {
-        const { name, email, password, phone1, phone2, whatsapp, instagram, address,
+        const { name, email, password, phone1, phone2, whatsapp, instagram, address,guardian,
             guardian_name,guardian_phone, dateofBirth, program, joingdate, salary } = req.body;
         
         const crmDetails = await crms.create({
@@ -337,15 +337,14 @@ const addCrm = async (req, res) => {
             whatsapp,
             instagram,
             address,
-            guardian:[],
+            guardian,
             guardian_name,
             guardian_phone,
             dateofBirth,
             program,
             joingdate,
             salary
-        });  
-         crmDetails.guardian.push({guardian_name,guardian_phone})
+        });
 
          await crmDetails.save()
         
