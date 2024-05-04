@@ -3,11 +3,13 @@ const express = require('express')
 const mongoose = require('mongoose')
 const app = express()
 const cors = require('cors')
+const cron = require('node-cron');
 // importing routes
 const userRoutes = require('./routes/userRoutes')
 const adminRoutes = require('./routes/adminRoutes')
 const crmRoutes = require('./routes/crmRoutes')
-const adminController = require('./controllers/adminController')
+const codeRoutes = require('./routes/codeRoutes')
+const adminController = require('./controllers/adminController');
 
 
 // mongoDB connection
@@ -25,6 +27,8 @@ app.use(express.static('public'));
 app.use('/api/user', userRoutes)
 app.use('/api/admin', adminRoutes)
 app.use('/api/crm', crmRoutes)
+app.use('/api/code', codeRoutes)
+
 
 const PORT = process.env.PORT || 8000
 
@@ -40,7 +44,7 @@ app.listen(PORT, (err) => {
     console.log(`server is running on port ${PORT}`);
 })
 
-cron.schedule('0 8,12 * * *', () => {
+cron.schedule('0 9,2 * * *', () => {
     const code = adminController.generateCode();
     adminController.saveCode(code);
 });

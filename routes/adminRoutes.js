@@ -65,6 +65,7 @@ router.post('/addCarousel', carouselImage.single('image'),adminAuth,adminControl
 router.post('/add-calender-events',adminAuth,adminController.addCalenderEvents);
 router.post('/add-crms',adminAuth,adminController.addCrm);
 router.post('/add-leads',upload.single('excel'),adminAuth,adminController.addleadsByExcelUpload);
+router.post('/save-code',adminController.saveCode);
 
 
 
@@ -77,6 +78,7 @@ router.get('/get-leaves',adminController.getLeave);
 router.get('/get-calender',adminController.getCalenderEvents);
 router.get('/get-calender-by-id/:id',adminController.getCalenderEventsById);
 router.get('/get-all-leads',adminController.getLeads);
+router.get('/get-qr', adminAuth, adminController.getQRCode);
 
 
 
