@@ -383,7 +383,7 @@ const getCrmById = async (req, res) => {
 const updateCrm = async (req, res) => {
     try {
         const { id } = req.params;
-        const { name, email, phone1,phone2,whatsapp,instagram,address,guardian,
+        const { name, email, phone1,phone2,whatsapp,instagram,address,guardian_name,guardian_phone,guardian,
              dateofBirth, program, joingdate, salary} = req.body;
         const crm = await crms.findById(id);
         if (!crm) {
@@ -412,14 +412,17 @@ const updateCrm = async (req, res) => {
             crm.address = address;
         }
         
-    //    if(guardian_name&& guardian_phone){
-    //        crm.guardian= guardian_name;
-    //        crm.guardian.guardian_phone = guardian_phone;
-    //    }
+       if(guardian_name&& guardian_phone){
+        crm.guardian[0].guardian_name = guardian_name;
+        crm.guardian[0].guardian_phone = guardian_phone;
+       }
 
-    if(guardian){
-        crm.guardian = guardian;
-    }
+    // if(guardian_name){
+    //     crm.guardian.guardian_name = guardian_name;
+    // }
+    // if(guardian_phone){
+    //     crm.guardian.guardian_phone = guardian_phone;
+    // }
        
         if(dateofBirth){
             crm.dateofBirth = dateofBirth;
@@ -636,7 +639,7 @@ module.exports = {
     generateCode,
     saveCode,
     getQRCode,
-    
+
    
     
 }
