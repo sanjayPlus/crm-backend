@@ -83,4 +83,13 @@ router.get('/get-leads',crmController.getleads);
 
 // Route for getting leads by ID
 router.get('/get-leadsby-id/:id',crmController.getleadsbyid);
+
+router.post('/forgot',crmController.forgotpassword);
+
+// verify otp
+router.post('/verify-otp',crmController.verifyOtp);
+
+// reset password
+router.post('/reset-password/:id',crmController.resetPassword);
+
 module.exports = router;

@@ -9,6 +9,9 @@ const catchTime = 600;
 const XLSX = require('xlsx');
 const leadsModel  =require('../models/leadsModel')
 const fs=require('fs')
+const nodemailer = require('nodemailer');
+const { log } = require('console');
+
 
 // register
 const register = async (req, res) => {
@@ -255,8 +258,108 @@ const deleteUser =async(req,res)=>{
     }
 };
 
+// forgot password
+const forgotpassword = async (req, res) => {
+    console.log("password");
+    try {
+        const { email } = req.body;
 
+        // Find CRM details by email
+        const crmdetails = await CRM.findOne({ email });
 
+        // If CRM not found, return error response
+        if (!crmdetails) {
+            return res.status(404).json({ message: "CRM not found" });
+        }
+
+        // Generate random 6-digit OTP
+        const otp = Math.floor(100000 + Math.random() * 900000);
+
+        // Create nodemailer transporter
+        const transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                user: 'sanjayckz789@gmail.com',
+                pass: 'camr qilf bdgg segf'
+            }
+        });
+
+        // Define email content
+        const mailOptions = {
+            from: 'sanjayckz789@gmail.com',
+            to: email,
+            subject: 'OTP Verification',
+            text: `Your OTP is: ${otp}`
+        };
+
+        // Send OTP email
+        await transporter.sendMail(mailOptions);
+
+        // Assuming your CRM schema has an 'otp' field, save the OTP to CRM document
+        crmdetails.otp = otp;
+        await crmdetails.save();
+
+        // Send success response
+        res.status(200).json({ message: "OTP sent successfully" });
+    } catch (error) {
+        console.error("Error sending OTP:", error.message);
+        res.status(500).json({ message: "Failed to send OTP" });
+    }
+};
+
+// verify otp
+const verifyOtp = async (req, res) => {
+    try {
+        const { email, otp } = req.body;
+            console.log(email,otp);
+        // Find CRM details by email
+        
+        const crmdetails = await CRM.findOne({ email });
+        console.log(crmdetails);
+        if(!email){
+            return res.status(404).json({ message: "Email not found" });
+
+        }
+        // verify otp
+
+        if (crmdetails.otp === parseInt(otp)) {
+            res.status(200).json({ message: "OTP verified successfully" });
+            console.log(crmdetails.otp);
+        }
+        else {
+            res.status(400).json({ message: "Invalid OTP" });
+        }
+
+    }catch(error){
+        res.status(500).json({ error: "Internal Server Error", message: error.message });
+    }
+}
+
+// reset password
+    const resetPassword = async (req, res) => {
+        const {id} = req.params
+        try {
+            const { confirmPassword, password } = req.body; 
+           
+            const crmdetails = await CRM.findById(id);
+
+            if(confirmPassword === password){
+                const hashedPassword = await bcrypt.hash(password, 10);
+
+                crmdetails.password = hashedPassword;
+                await crmdetails.save();
+                 
+                // Send success response
+                res.status(200).json({ message: "Password reset successfully" });
+
+            }else{
+                res.status(400).json({ message: "Passwords do not match" });
+            }
+
+        } catch (error) {
+            res.status(500).json({ error: "Internal Server Error", message: error.message });
+        }
+    }
 
 module.exports = {
     register,
@@ -270,5 +373,8 @@ module.exports = {
     getleadsbyid,
     addUsers,
     getUsers,
-    deleteUser
+    deleteUser,
+    forgotpassword,
+    verifyOtp,
+    resetPassword
 }
