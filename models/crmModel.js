@@ -124,6 +124,9 @@ const crmSchema = new mongoose.Schema({
             required:true
         },
     }],
+    otp:{
+        type:Number
+    }
 
 })
 
