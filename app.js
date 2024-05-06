@@ -44,7 +44,7 @@ app.listen(PORT, (err) => {
     console.log(`server is running on port ${PORT}`);
 })
 
-cron.schedule('0 9,2 * * *', () => {
-    const code = adminController.generateCode();
-    adminController.saveCode(code);
-});
+// cron.schedule('0 9,2 * * *', () => {
+//     const code = adminController.generateCode();
+//     adminController.saveCode(code);
+// });
