@@ -81,6 +81,7 @@ router.get('/get-calender',adminController.getCalenderEvents);
 router.get('/get-calender-by-id/:id',adminController.getCalenderEventsById);
 router.get('/get-all-leads',adminController.getLeads);
 router.get('/get-qr', adminAuth, adminController.getQRCode);
+router.get('/whatsapp',adminAuth,adminController.getWhatsapp);
 router.get('/get-total-leadcount',adminController.getleadstotalcount);
 
 
@@ -88,11 +89,15 @@ router.get('/get-total-leadcount',adminController.getleadstotalcount);
 router.delete('/deleteCarousel/:id',adminAuth,adminController.deleteCarousel);
 router.delete('/delete-calender-events/:id',adminAuth,adminController.deleteCalenderEvents);
 router.delete('/delete-crms/:id',adminAuth,adminController.deleteCrm);
+
+router.delete('/delete-whatsapp/:id',adminAuth,adminController.deleteWhatsApp);
+
 // router.delete('/delete-all-leads',adminAuth,adminController.deleteallleads);
 // router.delete('/delete-leads/:id',adminAuth,adminController.deleteLeads);
 
 router.put('/updateCarousel/:id', carouselImage.single('image'),adminAuth,adminController.updateCarousel);
-router.put('/updateCrm/:id',adminAuth, adminController.updateCrm),
+router.put('/updateCrm/:id',adminAuth, adminController.updateCrm);
+
 
 
 module.exports = router
