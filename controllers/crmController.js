@@ -214,16 +214,14 @@ const addUsers = async(req,res)=>{
 
             const usersDetails = await users.create({name,email,password,
                 users_type,phone_number,whatsapp,facebook,instagram,registeration_fee,
-                registeration_date,documentation_date,documentation_fee,address,teachers:[],training_fee:[],
+                registeration_date,documentation_date,documentation_fee,address,teachers,teacherid,home,training_fee,
                 location,age,qualification,program_type,language_status,
                 no,date,fee,batch,preparation_fee,
                 profile_image:`${process.env.DDOMAIN}/user/${imgObj.filenme}`,
-                crm_joinId,visits:[],visitdate
+                crm_joinId,visits,visitdate
                 
             })
-            usersDetails.teachers.push({teacherid,home})
-            usersDetails.training_fee.push({no,date,fee})
-            usersDetails.visits.push({visitdate})
+            
 
             await usersDetails.save()
 

@@ -67,6 +67,7 @@ router.post('/add-crms',adminAuth,adminController.addCrm);
 // router.post('/add-leads',upload.single('excel'),adminAuth,adminController.addleadsByExcelUpload);
 router.post('/save-code',adminController.saveCode);
 router.post('/add-assignments',adminAuth,adminController.addAssignments);
+router.post('/whatsapp-group',adminController.addwhatsApp);
 
 
 

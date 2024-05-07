@@ -14,6 +14,7 @@ const XLSX = require('xlsx');
 const leadsModel = require('../models/leadsModel');
 const Code = require('../models/Code');
 const crypto = require('crypto');
+const whatsapp = require('../models/Whatsapp');
 // const QRCode = require('qrcode');
 // register
 // const register = async (req, res) => {
@@ -637,6 +638,42 @@ const getQRCode = async function(req, res) {
 }
 
 
+const addwhatsApp=async(req,res)=>{
+ try {
+    const { name, link } = req.body;
+
+    // Validate if name and link are provided
+    if (!name || !link) {
+        return res.status(400).json({ error: "Name and link are required fields" });
+    }
+
+    // Save the group details to the database
+    const newGroup = await whatsapp.find({link})
+
+    res.status(201).json({ message: 'WhatsApp group created successfully', group: newGroup });
+ } catch (error) {
+    console.log('error');
+    res.status(500).json({ error: "Internal Server Error", message: error.message });
+ }
+};
+
+const getWhatsapp =async(req,res)=>{
+    try {
+        const groupId = req.params.groupId;
+
+        // Fetch the group details from the database
+        const group = await whatsapp.findById(groupId);
+
+        if (!group) {
+            return res.status(404).json({ error: 'Group not found' });
+        }
+
+        res.status(200).json({ group });
+    } catch (error) {
+        res.status(500).json({ error: "Internal Server Error", message: error.message });
+
+    }
+};
 module.exports = {
     // register,
     adminLogin,
@@ -664,6 +701,9 @@ module.exports = {
     generateCode,
     saveCode,
     getQRCode,
+    addwhatsApp,
+    getWhatsapp
+
     getleadstotalcount,
 
    
