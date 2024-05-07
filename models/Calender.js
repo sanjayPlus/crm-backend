@@ -13,6 +13,10 @@ const calenderSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    createdBy:{
+        type:String,
+        required:true
+    }
    
 })
 const Calender = mongoose.model('calender', calenderSchema);

@@ -5,12 +5,13 @@ const assignment = require('../models/Assignments')
 const Cache = require('../middlewares/Cache');
 const Leave = require('../models/Leave');
 const users = require('../models/userModel');
+const Calender = require('../models/Calender')
 const catchTime = 600;
 const XLSX = require('xlsx');
 const leadsModel  =require('../models/leadsModel')
 const fs=require('fs')
 const nodemailer = require('nodemailer');
-const { log } = require('console');
+const { query } = require('express');
 
 
 // register
@@ -42,7 +43,8 @@ const register = async (req, res) => {
         const newCRM = await CRM.create({
             name,
             email,
-            password: hashedPassword
+            password: hashedPassword,
+            
         })
         res.status(200).json({ newCRM })
 
@@ -144,6 +146,66 @@ const addLeave = async (req, res) => {
     }
 
 };
+
+
+// add calenderevents by crm
+const addCalenderEvents = async (req, res) => {
+    try {
+        const {id} = req.crm
+        console.log(id);
+        const { title, description, date } = req.body;
+        if (!title || !description || !date) {
+            return res.status(400).json({ error: " fields not found" });
+        }
+
+        const calenderEvents = await Calender.create({
+            title,
+            description,
+            date,
+            createdBy: id
+        })    
+        res.status(200).json(calenderEvents);
+
+    } catch (error) {
+        console.log("error");
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+};
+
+// get calender events by crm
+const getCalenderEventByCrm = async(req,res)=>{
+        try {
+            const {id} = req.crm
+            const {date} = req.query
+            let query = {}
+
+            if(date){
+                query.date = date
+            }
+            // get calender Event by crm and query
+            const calenderEvent = await Calender.find({createdBy: id, ...query})
+            if(calenderEvent.length>0){
+                res.status(200).json(calenderEvent)
+            }else{
+                return res.status(400).json({error:"No calender events found"})
+            }
+           
+        } catch (error) {
+            res.status(500).json({error:`Internal Server Error: ${error.message}` })
+        }          
+}
+
+// delete calender event
+
+const deleteCalenderEvent = async (req, res) => {
+    try {
+        const {id} = req.params
+        const calenderEvent = await Calender.findByIdAndDelete(id)
+        res.status(200).json(calenderEvent)
+    } catch (error) {
+        res.status(500).json({ error: "Internal Server Error", message: error.message });
+    }
+}
 
 // add data from excel
 const excelfileupload = async (req, res) => {
@@ -366,6 +428,7 @@ module.exports = {
     protected,
     addAssignments,
     addLeave,
+    addCalenderEvents,
     excelfileupload,
     getleads,
     getleadsbyid,
@@ -374,5 +437,7 @@ module.exports = {
     deleteUser,
     forgotpassword,
     verifyOtp,
-    resetPassword
+    resetPassword,
+    getCalenderEventByCrm,
+    deleteCalenderEvent
 }

@@ -332,10 +332,11 @@ const addCrm = async (req, res) => {
         const { name, email, password, phone1, phone2, whatsapp, instagram, address,guardian,
             guardian_name,guardian_phone, dateofBirth, program, joingdate, salary,image,incentive,idno } = req.body;
         
+            const hashedPassword = await bcrypt.hash(password, 10);
         const crmDetails = await crms.create({
             name,
             email,
-            password,
+            password: hashedPassword,
             phone1,
             phone2,
             whatsapp,
