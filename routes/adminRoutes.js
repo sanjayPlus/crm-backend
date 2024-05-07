@@ -64,8 +64,9 @@ router.post('/login',adminController.adminLogin);
 router.post('/addCarousel', carouselImage.single('image'),adminAuth,adminController.addCarousel);
 router.post('/add-calender-events',adminAuth,adminController.addCalenderEvents);
 router.post('/add-crms',adminAuth,adminController.addCrm);
-router.post('/add-leads',upload.single('excel'),adminAuth,adminController.addleadsByExcelUpload);
+// router.post('/add-leads',upload.single('excel'),adminAuth,adminController.addleadsByExcelUpload);
 router.post('/save-code',adminController.saveCode);
+router.post('/add-assignments',adminAuth,adminController.addAssignments);
 
 
 
@@ -79,14 +80,15 @@ router.get('/get-calender',adminController.getCalenderEvents);
 router.get('/get-calender-by-id/:id',adminController.getCalenderEventsById);
 router.get('/get-all-leads',adminController.getLeads);
 router.get('/get-qr', adminAuth, adminController.getQRCode);
+router.get('/get-total-leadcount',adminController.getleadstotalcount);
 
 
 
 router.delete('/deleteCarousel/:id',adminAuth,adminController.deleteCarousel);
 router.delete('/delete-calender-events/:id',adminAuth,adminController.deleteCalenderEvents);
 router.delete('/delete-crms/:id',adminAuth,adminController.deleteCrm);
-router.delete('/delete-all-leads',adminAuth,adminController.deleteallleads);
-router.delete('/delete-leads/:id',adminAuth,adminController.deleteLeads);
+// router.delete('/delete-all-leads',adminAuth,adminController.deleteallleads);
+// router.delete('/delete-leads/:id',adminAuth,adminController.deleteLeads);
 
 router.put('/updateCarousel/:id', carouselImage.single('image'),adminAuth,adminController.updateCarousel);
 router.put('/updateCrm/:id',adminAuth, adminController.updateCrm),

@@ -24,6 +24,9 @@ const leadsSchema = new mongoose.Schema({
     },
     uploaded_crm_name:{
         type: String
+    },
+    status:{
+        type: String
     }
 })
 

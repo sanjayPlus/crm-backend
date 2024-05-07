@@ -329,7 +329,7 @@ const deleteCalenderEvents = async (req, res) => {
 const addCrm = async (req, res) => {
     try {
         const { name, email, password, phone1, phone2, whatsapp, instagram, address,guardian,
-            guardian_name,guardian_phone, dateofBirth, program, joingdate, salary } = req.body;
+            guardian_name,guardian_phone, dateofBirth, program, joingdate, salary,image,incentive,idno } = req.body;
         
         const crmDetails = await crms.create({
             name,
@@ -346,7 +346,10 @@ const addCrm = async (req, res) => {
             dateofBirth,
             program,
             joingdate,
-            salary
+            salary,
+            image,
+            incentive,
+            idno
         });
 
          await crmDetails.save()
@@ -384,7 +387,7 @@ const updateCrm = async (req, res) => {
     try {
         const { id } = req.params;
         const { name, email, phone1,phone2,whatsapp,instagram,address,guardian_name,guardian_phone,guardian,
-             dateofBirth, program, joingdate, salary} = req.body;
+             dateofBirth, program, joingdate, salary,image,incentive,idno } = req.body;
         const crm = await crms.findById(id);
         if (!crm) {
             return res.status(404).json({ error: "Crm not found" });
@@ -439,6 +442,15 @@ const updateCrm = async (req, res) => {
         if(salary){
             crm.salary = salary;
         }
+        if(image){
+            crm.image = image;
+        }
+        if(incentive){
+            crm.incentive = incentive;
+        }
+        if(idno){
+            crm.idno = idno;
+        }
         await crm.save();
         res.status(200).json({ message: "Crm updated successfully", crm });
     } catch (error) {
@@ -459,58 +471,58 @@ const deleteCrm = async (req, res) => {
     }
 }
 
-const addleadsByExcelUpload = async (req, res) => {
-    try {
-        const{excel_type} = req.body;
-        if (!req.file) {
-            return res.status(400).send('No file uploaded.'); 
-        }
+// const addleadsByExcelUpload = async (req, res) => {
+//     try {
+//         const{excel_type} = req.body;
+//         if (!req.file) {
+//             return res.status(400).send('No file uploaded.'); 
+//         }
         
-        const buffer = req.file.buffer;
-        const workbook = XLSX.read(buffer, { type: 'buffer' });
-        const sheetName = workbook.SheetNames[0];
-        const worksheet = workbook.Sheets[sheetName];
-        const jsonData = XLSX.utils.sheet_to_json(worksheet);
-        const fields = Object.keys(jsonData[0]);
-        const dataArray = jsonData.map((row,index) => {
-            const dataObjects = {};
-            fields.forEach((field)=>{
-                dataObjects[field] = row[field];
-            });
-            dataObjects.serial_number = index + 2;
-            return dataObjects;
+//         const buffer = req.file.buffer;
+//         const workbook = XLSX.read(buffer, { type: 'buffer' });
+//         const sheetName = workbook.SheetNames[0];
+//         const worksheet = workbook.Sheets[sheetName];
+//         const jsonData = XLSX.utils.sheet_to_json(worksheet);
+//         const fields = Object.keys(jsonData[0]);
+//         const dataArray = jsonData.map((row,index) => {
+//             const dataObjects = {};
+//             fields.forEach((field)=>{
+//                 dataObjects[field] = row[field];
+//             });
+//             dataObjects.serial_number = index + 2;
+//             return dataObjects;
         
-        })
+//         })
 
-        dataArray.map(async (data) => {
-            const leads = await leadsModel.create({
-                serial_number: data.serial_number,
-                name: data.full_name,
-                email: data.email,
-                phone_number: data.phone_number,
-                city: data.city,
-                excel_type,
-                uploaded_by:req.admin.id,
-                uploaded_crm_name: req.admin.name
-            });
-        })
+//         dataArray.map(async (data) => {
+//             const leads = await leadsModel.create({
+//                 serial_number: data.serial_number,
+//                 name: data.full_name,
+//                 email: data.email,
+//                 phone_number: data.phone_number,
+//                 city: data.city,
+//                 excel_type,
+//                 uploaded_by:req.admin.id,
+//                 uploaded_crm_name: req.admin.name
+//             });
+//         })
 
-        res.status(200).json({ message: "Data inserted successfully", dataArray });
-    } catch (error) {
-        console.error('Error processing Excel file:', error);
-        res.status(500).send('Internal Server Error');
-    }
+//         res.status(200).json({ message: "Data inserted successfully", dataArray });
+//     } catch (error) {
+//         console.error('Error processing Excel file:', error);
+//         res.status(500).send('Internal Server Error');
+//     }
     
-};
+// };
 
-const deleteallleads = async (req, res) => {
-    try {
-        const deletedleads = await leadsModel.deleteMany();
-        res.status(200).json({ message: "leads deleted successfully" });
-    } catch (error) {
-        res.status(500).json({ error: "Internal Server Error" });
-    }
-}
+// const deleteallleads = async (req, res) => {
+//     try {
+//         const deletedleads = await leadsModel.deleteMany();
+//         res.status(200).json({ message: "leads deleted successfully" });
+//     } catch (error) {
+//         res.status(500).json({ error: "Internal Server Error" });
+//     }
+// }
 
 const getLeads = async (req, res) => {
     try {
@@ -521,32 +533,42 @@ const getLeads = async (req, res) => {
     }
 }
 
-const deleteLeads = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const deletedleads = await leadsModel.findByIdAndDelete(id);
-        res.status(200).json({ message: "leads deleted successfully" });
-    } catch (error) {
-        res.status(500).json({ error: "Internal Server Error" });
+
+// const deleteLeads = async (req, res) => {
+//     try {
+//         const { id } = req.params;
+//         const deletedleads = await leadsModel.findByIdAndDelete(id);
+//         res.status(200).json({ message: "leads deleted successfully" });
+//     } catch (error) {
+//         res.status(500).json({ error: "Internal Server Error" });
+//     }
+// }
+
+const getleadstotalcount = async (req, res) => {
+    try{
+        const count = await leadsModel.countDocuments();
+        res.status(200).json({ count });
+    }catch(error){
+        res.status(500).json({ error: "Internal Server Error", message: error.message });
     }
 }
 
 const addAssignments = async (req, res) => {
     try {
-        const { title, subject, assignmentType, issueDate, dueDate, priority } = req.body;
-        const assignments = await assignment.create({
+        const { title, subject, assignmentType, issueDate, dueDate, priority,assignedTo } = req.body;
+        const assignments = await crmModel.create({
             title,
             subject,
             assignmentType,
             issueDate,
             dueDate,
             priority,
-            createdBy: req.admin.id
+            createdBy: req.admin.id,
+            assignedTo,
             
         });
-        const cacheDate = await assignment.find().sort({ _id: -1 });
-        Cache.set('assignment', cacheDate, catchTime);
-        res.status(200).json({ assignments });
+        
+        res.status(200).json( assignments);
     } catch (error) {
         res.status(500).json({ error: "Internal Server Error", message: error.message });
     }   
@@ -635,13 +657,14 @@ module.exports = {
     getCalenderEvents,
     getCalenderEventsById,
     deleteCrm,
-    addleadsByExcelUpload,
-    deleteallleads,
+    // addleadsByExcelUpload,
+    // deleteallleads,
     getLeads,
-    deleteLeads,
+    // deleteLeads,
     generateCode,
     saveCode,
     getQRCode,
+    getleadstotalcount,
 
    
     

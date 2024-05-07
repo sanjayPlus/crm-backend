@@ -123,6 +123,15 @@ const crmSchema = new mongoose.Schema({
             type:String,
             required:true
         },
+        issue_date:{
+            type:String,
+            required:true
+        },
+        due_date:{
+            type:String,
+            required:true
+        }
+        
     }],
     otp:{
         type:Number
