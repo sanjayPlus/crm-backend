@@ -66,6 +66,7 @@ router.post('/add-calender-events',adminAuth,adminController.addCalenderEvents);
 router.post('/add-crms',adminAuth,adminController.addCrm);
 router.post('/add-leads',upload.single('excel'),adminAuth,adminController.addleadsByExcelUpload);
 router.post('/save-code',adminController.saveCode);
+router.post('/whatsapp-group',adminController.addwhatsApp);
 
 
 
