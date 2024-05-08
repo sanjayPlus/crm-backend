@@ -67,6 +67,7 @@ router.post('/register',crmController.register);
 router.post('/login',crmController.crmLogin);
 router.post('/add-assignments',crmAuth,crmController.addAssignments);
 router.post('/add-leave',crmAuth,crmController.addLeave);
+router.post('/add-calender',crmAuth,crmController.addCalenderEvents);
 router.post('/add-users',userImage.single('image'),crmController.addUsers);
 
 
@@ -78,19 +79,25 @@ router.delete('/delete-user/:id',crmController.deleteUser);
 
 // Route for uploading Excel file
 router.post('/upload-excel', excelUpload.single('file'),crmController.excelfileupload);
-
-// Route for getting all leads
-router.get('/get-leads',crmController.getleads);
-
-// Route for getting leads by ID
-router.get('/get-leadsby-id/:id',crmController.getleadsbyid);
-
 router.post('/forgot',crmController.forgotpassword);
-
 // verify otp
 router.post('/verify-otp',crmController.verifyOtp);
-
 // reset password
 router.post('/reset-password/:id',crmController.resetPassword);
+
+
+
+router.get('/protected',crmAuth,crmController.protected);
+router.get('/get-crm-data',crmAuth,crmController.getCRMDetails);
+router.get('/get-users',crmAuth,crmController.getUsers);
+router.get('/get-calenderEvent-by-crm',crmAuth,crmController.getCalenderEventByCrm)
+// Route for getting all leads
+router.get('/get-leads',crmAuth,crmController.getleads);
+// Route for getting leads by ID
+router.get('/get-leadsby-id/:id',crmAuth,crmController.getleadsbyid);
+
+
+router.delete('/delete-user/:id',crmAuth,crmController.deleteUser);
+router.delete('/delete-calenderEvent/:id',crmAuth,crmController.deleteCalenderEvent);
 
 module.exports = router;

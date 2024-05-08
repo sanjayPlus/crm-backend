@@ -337,6 +337,7 @@ const addCrm = async (req, res) => {
             name,
             email,
             password: hashedPassword,
+            password: hashedPassword,
             phone1,
             phone2,
             whatsapp,
