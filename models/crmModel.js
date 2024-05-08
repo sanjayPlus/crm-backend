@@ -1,4 +1,5 @@
 const mongoose = require('mongoose')
+const { subscribe } = require('../routes/adminRoutes')
 const crmSchema = new mongoose.Schema({
     name: {
         type: String,
@@ -103,35 +104,35 @@ const crmSchema = new mongoose.Schema({
         },
     }],
     tasks:[{
-        date:{
-            type:String,
-            required:true
-        },
+        
         title:{
             type:String,
-            required:true
         },
-        assignment_type:{
+        subject:{
             type:String,
-            required:true
+        },
+        assignmentType:{
+            type:String,
         },
         priority:{
             type:String,
-            required:true
         },
         status:{
             type:String,
-            required:true
         },
-        issue_date:{
+        issueDate:{
             type:String,
-            required:true
         },
-        due_date:{
+        dueDate:{
             type:String,
-            required:true
+        },
+        createdBy:{
+            type:String,
+        },
+        remarks:{
+            type:String
         }
-        
+
     }],
     otp:{
         type:Number

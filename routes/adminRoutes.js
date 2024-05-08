@@ -71,6 +71,7 @@ router.post('/whatsapp-group',adminController.addwhatsApp);
 
 
 
+
 router.get('/protected',adminAuth,adminController.Protected);
 router.get('/getCarousel',adminController.getCarousel);
 router.get('/get-carousel-by-id/:id',adminController.getCarouselById);
@@ -83,6 +84,9 @@ router.get('/get-all-leads',adminController.getLeads);
 router.get('/get-qr', adminAuth, adminController.getQRCode);
 router.get('/whatsapp',adminAuth,adminController.getWhatsapp);
 router.get('/get-total-leadcount',adminController.getleadstotalcount);
+router.get('/get-all-assignments',adminController.getAllAssignments);
+router.get('/get-each-crm-assignments/:id',adminController.getEachCrmAssignments);
+router.get('/each-assignments/:crmId/task/:taskId',adminController.getEachAssignments);
 
 
 

@@ -3,7 +3,7 @@ const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken');
 const Carousel = require('../models/carousel')
 const Cache = require('../middlewares/Cache');
- const catchTime = 400;
+const catchTime = 400;
 const fs = require('fs');
 const path = require('path');
 const Calender = require('../models/Calender');
@@ -15,6 +15,7 @@ const leadsModel = require('../models/leadsModel');
 const Code = require('../models/Code');
 const crypto = require('crypto');
 const whatsapp = require('../models/Whatsapp');
+const { assert } = require('console');
 // const QRCode = require('qrcode');
 // register
 // const register = async (req, res) => {
@@ -164,7 +165,7 @@ const deleteCarousel = async (req, res) => {
         const filename = imageUrl.split('/').pop(); // Get the last part (filename)
 
         // Construct the path to the image file
-        const imagePath = path.join( 'carousel', filename);
+        const imagePath = path.join('carousel', filename);
 
         // Check if the file exists before trying to delete it
         if (fs.existsSync(imagePath)) {
@@ -203,7 +204,7 @@ const updateCarousel = async (req, res) => {
         // Construct the path to the old image file
         const oldImageFilename = carouselItem.image;
         const filename = oldImageFilename.split('/').pop(); // Get the last part (filename)
-        const oldImagePath = path.join( 'carousel', filename);
+        const oldImagePath = path.join('carousel', filename);
 
         // Check if the old image file exists before trying to delete it
         if (fs.existsSync(oldImagePath)) {
@@ -212,13 +213,13 @@ const updateCarousel = async (req, res) => {
         }
 
         // Update the carousel item
-        if(title){
+        if (title) {
             carouselItem.title = title;
         }
-        if(description){
+        if (description) {
             carouselItem.description = description;
         }
-        if(link){
+        if (link) {
             carouselItem.link = link;
         }
 
@@ -249,7 +250,7 @@ const getCarouselById = async (req, res) => {
         const { id } = req.params;
         const carouselcache = await Cache.get(`carousel_${id}`);
         if (carouselcache) {
-            return res.status(200).json(carouselcache);  
+            return res.status(200).json(carouselcache);
         }
         const carousel = await Carousel.findById(id);
         Cache.set(`carousel_${id}`, carousel, catchTime);
@@ -284,7 +285,7 @@ const addCalenderEvents = async (req, res) => {
             description,
             date
 
-        })    
+        })
         res.status(200).json(calenderEvents);
 
     } catch (error) {
@@ -320,7 +321,7 @@ const deleteCalenderEvents = async (req, res) => {
         if (!deletedCalenderEvents) {
             return res.status(404).json({ error: "Calender not found" });
         }
-        
+
         res.status(200).json({ message: "Calender deleted successfully" });
     } catch (error) {
         res.status(500).json({ error: "Internal Server Error" });
@@ -329,13 +330,13 @@ const deleteCalenderEvents = async (req, res) => {
 
 const addCrm = async (req, res) => {
     try {
-        const { name, email, password, phone1, phone2, whatsapp, instagram, address,guardian,
-            guardian_name,guardian_phone, dateofBirth, program, joingdate, salary,image,incentive,idno } = req.body;
-        
+        const { name, email, password, phone1, phone2, whatsapp, instagram, address, guardian,
+            guardian_name, guardian_phone, dateofBirth, program, joingdate, salary, image, idno } = req.body;
+        const hashedPassword = await bcrypt.hash(password, 10);
         const crmDetails = await crms.create({
             name,
             email,
-            password,
+            password: hashedPassword,
             phone1,
             phone2,
             whatsapp,
@@ -349,13 +350,12 @@ const addCrm = async (req, res) => {
             joingdate,
             salary,
             image,
-            incentive,
             idno
         });
 
-         await crmDetails.save()
-        
-        res.status(200).json({message:"crms added successfully", crmDetails});
+        await crmDetails.save()
+
+        res.status(200).json({ message: "crms added successfully", crmDetails });
     } catch (error) {
         console.log("error");
         res.status(500).json({ error: "Internal Server Error", message: error.message });
@@ -366,11 +366,11 @@ const getCrm = async (req, res) => {
     try {
         const crm = await crms.find().sort({ _id: -1 });
         res.status(200).json(crm);
-        
+
     } catch (error) {
         res.status(500).json({ error: "Internal Server Error", message: error.message });
         console.error(error);
-        
+
     }
 }
 
@@ -387,69 +387,69 @@ const getCrmById = async (req, res) => {
 const updateCrm = async (req, res) => {
     try {
         const { id } = req.params;
-        const { name, email, phone1,phone2,whatsapp,instagram,address,guardian_name,guardian_phone,guardian,
-             dateofBirth, program, joingdate, salary,image,incentive,idno } = req.body;
+        const { name, email, phone1, phone2, whatsapp, instagram, address, guardian_name, guardian_phone, guardian,
+            dateofBirth, program, joingdate, salary, image, incentive, idno } = req.body;
         const crm = await crms.findById(id);
         if (!crm) {
             return res.status(404).json({ error: "Crm not found" });
         }
-        if(name){
+        if (name) {
             crm.name = name;
         }
-        if(email){
+        if (email) {
             crm.email = email;
         }
-        
-        if(phone1){
+
+        if (phone1) {
             crm.phone1 = phone1;
         }
-        if(phone2){
+        if (phone2) {
             crm.phone2 = phone2;
         }
-        if(whatsapp){
+        if (whatsapp) {
             crm.whatsapp = whatsapp;
         }
-        if(instagram){
+        if (instagram) {
             crm.instagram = instagram;
         }
-        if(address){
+        if (address) {
             crm.address = address;
         }
-        
-       // if(guardian_name&& guardian_phone){
-       //  crm.guardian[0].guardian_name = guardian_name;
-       //  crm.guardian[0].guardian_phone = guardian_phone;
-       // }
-     if(guardian){
-      crm.guardian = guardian
-     }
 
-    // if(guardian_name){
-    //     crm.guardian.guardian_name = guardian_name;
-    // }
-    // if(guardian_phone){
-    //     crm.guardian.guardian_phone = guardian_phone;
-    // }
-       
-        if(dateofBirth){
+        // if(guardian_name&& guardian_phone){
+        //  crm.guardian[0].guardian_name = guardian_name;
+        //  crm.guardian[0].guardian_phone = guardian_phone;
+        // }
+        if (guardian) {
+            crm.guardian = guardian
+        }
+
+        // if(guardian_name){
+        //     crm.guardian.guardian_name = guardian_name;
+        // }
+        // if(guardian_phone){
+        //     crm.guardian.guardian_phone = guardian_phone;
+        // }
+
+        if (dateofBirth) {
             crm.dateofBirth = dateofBirth;
         }
-        if(program){
+        if (program) {
             crm.program = program;
         }
-        if(joingdate){
+        if (joingdate) {
             crm.joingdate = joingdate;
         }
-        if(salary){
+        if (salary) {
             crm.salary = salary;
         }
-        if(image){
+        if (image) {
             crm.image = image;
         }
-        if(incentive){
+        if (incentive) {
             crm.incentive = incentive;
         }
-        if(idno){
+        if (idno) {
             crm.idno = idno;
         }
         await crm.save();
@@ -457,7 +457,7 @@ const updateCrm = async (req, res) => {
     } catch (error) {
         res.status(500).json({ error: "Internal Server Error", message: error.message });
         console.error(error);
-        }
+    }
 }
 const deleteCrm = async (req, res) => {
     try {
@@ -478,7 +478,7 @@ const deleteCrm = async (req, res) => {
 //         if (!req.file) {
 //             return res.status(400).send('No file uploaded.'); 
 //         }
-        
+
 //         const buffer = req.file.buffer;
 //         const workbook = XLSX.read(buffer, { type: 'buffer' });
 //         const sheetName = workbook.SheetNames[0];
@@ -492,7 +492,7 @@ const deleteCrm = async (req, res) => {
 //             });
 //             dataObjects.serial_number = index + 2;
 //             return dataObjects;
-        
+
 //         })
 
 //         dataArray.map(async (data) => {
@@ -513,7 +513,7 @@ const deleteCrm = async (req, res) => {
 //         console.error('Error processing Excel file:', error);
 //         res.status(500).send('Internal Server Error');
 //     }
-    
+
 // };
 
 // const deleteallleads = async (req, res) => {
@@ -546,18 +546,22 @@ const getLeads = async (req, res) => {
 // }
 
 const getleadstotalcount = async (req, res) => {
-    try{
+    try {
         const count = await leadsModel.countDocuments();
         res.status(200).json({ count });
-    }catch(error){
+    } catch (error) {
         res.status(500).json({ error: "Internal Server Error", message: error.message });
     }
 }
 
 const addAssignments = async (req, res) => {
     try {
-        const { title, subject, assignmentType, issueDate, dueDate, priority,assignedTo } = req.body;
-        const assignments = await crmModel.create({
+        const { title, subject, assignmentType, issueDate, dueDate, priority, assignedTo } = req.body;
+        const crmModel = await crms.findById(assignedTo);
+        if (!crmModel) {
+            return res.status(404).json({ error: "Crm not found" });
+        }
+        const assignments = {
             title,
             subject,
             assignmentType,
@@ -565,26 +569,62 @@ const addAssignments = async (req, res) => {
             dueDate,
             priority,
             createdBy: req.admin.id,
-            assignedTo,
-            
-        });
-        
-        res.status(200).json( assignments);
+        }
+        crmModel.tasks.push(assignments);
+        await crmModel.save();
+        res.status(200).json(assignments);
     } catch (error) {
         res.status(500).json({ error: "Internal Server Error", message: error.message });
-    }   
+    }
 };
 
+const getAllAssignments = async(req,res) =>{
+    try {
+        const assignments = await crms.find().select('tasks')
+        res.status(200).json(assignments)
+    } catch (error) {
+        res.status(500).json({ error: "Internal Server Error", message: error.message });
+    }
+}
 
-const getLeave =async(req,res)=>{
-    try {       
-           const leaves  =  await Cache.get('leaves')
-           if (leaves) {
+const getEachCrmAssignments = async(req,res) =>{
+    
+    try {
+        const {id} = req.params
+        const assignments = await crms.findById(id).select('tasks')
+        res.status(200).json(assignments)
+    } catch (error) {
+        res.status(500).json({ error: "Internal Server Error", message: error.message });
+    }
+}
+
+const getEachAssignments = async(req,res) =>{
+    try {
+        const {crmId, taskId} = req.params;
+        const crm = await crms.findById(crmId);
+        if(!crm){
+            return res.status(404).json({error:"Crm not found"});
+        }
+        const task = crm.tasks.id(taskId);
+        if(!task){
+            return res.status(404).json({error:"Task not found"});
+        }
+        res.status(200).json(task);
+    } catch (error) {
+        res.status(500).json({ error: "Internal Server Error", message: error.message });
+    }
+}
+
+
+const getLeave = async (req, res) => {
+    try {
+        const leaves = await Cache.get('leaves')
+        if (leaves) {
             return res.status(200).json(leaves);
-           }
-           const leave =await Leave.find().sort({_id: -1});
-           Cache.set('leaves',leave ,catchTime)
-            res.status(200).json({leave})
+        }
+        const leave = await Leave.find().sort({ _id: -1 });
+        Cache.set('leaves', leave, catchTime)
+        res.status(200).json({ leave })
 
     } catch (error) {
         console.log("error");
@@ -603,7 +643,7 @@ const generateCode = function generateRandomCode(length = 10) {
     return randomCode;
 }
 
-const saveCode = async function(code) {
+const saveCode = async function (code) {
     const date = new Date();
     const time = date.toTimeString().split(' ')[0]; // Get the current time
 
@@ -621,7 +661,7 @@ const saveCode = async function(code) {
     }
 }
 
-const getQRCode = async function(req, res) {
+const getQRCode = async function (req, res) {
     const { date, time } = req.query;
 
     try {
@@ -638,26 +678,26 @@ const getQRCode = async function(req, res) {
 }
 
 
-const addwhatsApp=async(req,res)=>{
- try {
-    const { name, link } = req.body;
+const addwhatsApp = async (req, res) => {
+    try {
+        const { name, link } = req.body;
 
-    // Validate if name and link are provided
-    if (!name || !link) {
-        return res.status(400).json({ error: "Name and link are required fields" });
+        // Validate if name and link are provided
+        if (!name || !link) {
+            return res.status(400).json({ error: "Name and link are required fields" });
+        }
+
+        // Save the group details to the database
+        const newGroup = await whatsapp.find({ link })
+
+        res.status(201).json({ message: 'WhatsApp group created successfully', group: newGroup });
+    } catch (error) {
+        console.log('error');
+        res.status(500).json({ error: "Internal Server Error", message: error.message });
     }
-
-    // Save the group details to the database
-    const newGroup = await whatsapp.find({link})
-
-    res.status(201).json({ message: 'WhatsApp group created successfully', group: newGroup });
- } catch (error) {
-    console.log('error');
-    res.status(500).json({ error: "Internal Server Error", message: error.message });
- }
 };
 
-const getWhatsapp =async(req,res)=>{
+const getWhatsapp = async (req, res) => {
     try {
         const groupId = req.params.groupId;
 
@@ -719,9 +759,10 @@ module.exports = {
     addwhatsApp,
     getWhatsapp,
     deleteWhatsApp,
-
+    getAllAssignments,
     getleadstotalcount,
+    getEachCrmAssignments,
+    getEachAssignments,
 
-   
-    
+
 }

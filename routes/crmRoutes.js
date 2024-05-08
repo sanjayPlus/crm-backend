@@ -69,9 +69,10 @@ router.post('/add-assignments',crmAuth,crmController.addAssignments);
 router.post('/add-leave',crmAuth,crmController.addLeave);
 router.post('/add-users',userImage.single('image'),crmController.addUsers);
 
+
 router.get('/protected',crmAuth,crmController.protected);
-router.get('/get-crm-data',crmAuth,crmController.getCRMDetails);
-router.get('/get-users',crmAuth,crmController.getUsers);
+router.get('/get-crm-data',crmController.getCRMDetails);
+router.get('/get-users',crmController.getUsers);
 
 router.delete('/delete-user/:id',crmController.deleteUser);
 

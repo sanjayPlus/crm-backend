@@ -104,26 +104,27 @@ const getCRMDetails = async (req, res) => {
 
 const addAssignments = async (req, res) => {
     try {
-        const { title, subject, assignmentType, issueDate, dueDate, priority,status,createdBy } = req.body;
-        const assignments = await assignment.create({
+        const { title, subject, assignmentType, issueDate, dueDate, priority} = req.body;
+        const crmModel = await CRM.findById(req.crm.id);
+        if (!crmModel) {
+            return res.status(404).json({ error: "Crm not found" });
+        }
+        const assignments = {
             title,
             subject,
             assignmentType,
             issueDate,
             dueDate,
             priority,
-            status,
-            createdBy: req.crm.id
-            
-        });
-        const cacheDate = await assignment.find().sort({ _id: -1 });
-        Cache.set('assignment', cacheDate, catchTime);
-        res.status(200).json({ assignments });
+            createdBy: req.crm.id,
+        }
+        crmModel.tasks.push(assignments);
+        await crmModel.save();
+        res.status(200).json(assignments);
     } catch (error) {
         res.status(500).json({ error: "Internal Server Error", message: error.message });
-        console.error(error);
     }
-}
+};
 
 const addLeave = async (req, res) => {
     try{
@@ -374,5 +375,5 @@ module.exports = {
     deleteUser,
     forgotpassword,
     verifyOtp,
-    resetPassword
+    resetPassword,
 }
