@@ -8,10 +8,11 @@ const users = require('../models/userModel');
 const Calender = require('../models/Calender')
 const catchTime = 600;
 const XLSX = require('xlsx');
-const leadsModel  =require('../models/leadsModel')
 const fs=require('fs')
 const nodemailer = require('nodemailer');
 const { query } = require('express');
+const leads = require('../models/leadsModel');
+const { log } = require('console');
 
 
 // register
@@ -209,42 +210,105 @@ const deleteCalenderEvent = async (req, res) => {
 }
 
 // add data from excel
-const excelfileupload = async (req, res) => {
+const addleadsByExcelUpload = async (req, res) => {
+    const { id, name } = req.crm;
     try {
-        
+        const { excel_type } = req.body;
         if (!req.file) {
-            return res.status(400).send('No file uploaded.'); 
+            return res.status(400).send('No file uploaded.');
         }
-
-        const excelFilePath = req.file.path;
-        const workbook = XLSX.readFile(excelFilePath);
+        const buffer = req.file.buffer;
+        const workbook = XLSX.read(buffer, { type: 'buffer' });
         const sheetName = workbook.SheetNames[0];
         const worksheet = workbook.Sheets[sheetName];
         const jsonData = XLSX.utils.sheet_to_json(worksheet);
-
-        const documents = jsonData.map((item,index) => {
-            const { name, phoneno } = item;
-            return { name, phoneno, leadno:index+1 };
+        const dataArray = jsonData.map((row, index) => {
+            return {
+                serial_number: index + 2,
+                name: row.full_name,
+                email: row.email,
+                phone_number: row.phone_number,
+                city: row.city,
+                excel_type,
+                uploaded_by: id,
+                uploaded_crm_name: name,
+                status: 'Pending' // Default status
+            };
         });
 
-        const insertedDocuments = await leadsModel.insertMany(documents);
-        res.status(200).json(insertedDocuments); 
+        // Find or create leads document for the CRM system
+        let leadsDocument = await leads.findOne({ createdBy: id });
+        if (!leadsDocument) {
+            leadsDocument = new leads({
+                createdBy: id,
+                leadsByCrm: []
+            });
+            leadsDocument.leadsByCrm.push(...dataArray);
+        }else{
+             // Push the new leads data into the leadsByCrm array
+           leadsDocument.leadsByCrm.push(...dataArray);
+        }
+        // save the data in to mongodb
+        await leadsDocument.save()
+        res.status(200).json(leadsDocument);
     } catch (error) {
         console.error('Error processing Excel file:', error);
         res.status(500).send('Internal Server Error');
     }
-    // finally{
-    //     fs.unlinkSync(req.file.path);
-    //     console.log('deleted successfully');
-    // }
 };
 
-// get all leads
-const getleads=async(req,res)=>
-{
+// add leads manually
+const addleadsManually = async (req, res) => {
+    const { id } = req.crm;
+    const { serial_number, name, email, phone_number, city,excel_type } = req.body;
+    const uploaded_by = id;
+
     try {
-        const data = await leadsModel.find();
-        res.status(200).json(data);
+        // Validate input fields if necessary
+        
+        const leadsObj = {
+            serial_number,
+            name,
+            email,
+            phone_number,
+            city,
+            excel_type,
+            uploaded_by
+        };
+
+        let leadsDocument = await leads.findOne({ createdBy: id });
+
+        if (!leadsDocument) {
+            leadsDocument = new leads({
+                createdBy: id,
+                leadsByCrm: []
+            });
+        }
+
+        leadsDocument.leadsByCrm.push(leadsObj);   
+        // Save the data to MongoDB
+        await leadsDocument.save();
+
+        // Respond with a success message or relevant information
+        res.status(200).json({ message: "Lead added successfully", lead: leadsObj });
+    } catch (error) {
+        // Handle errors
+        console.error(error);
+        res.status(500).json({ error: "Internal Server Error", message: error.message });
+    }
+};
+  
+// get all leads
+const getleads=async(req,res)=>{
+    const {id} = req.crm
+    try {
+        const data = await leads.find({createdBy:id});
+        // if no data added by the id
+        if(data.length===0){
+            return res.status(400).json({error:"No leads found"})
+        }else{
+            res.status(200).json(data);
+        }
     } catch (error) {
         res.status(500).json({ error: "Internal Server Error", message: error.message });
         console.error(error);
@@ -254,11 +318,24 @@ const getleads=async(req,res)=>
 // get leads by id
 const getleadsbyid=async(req,res)=>
 {
+    const crmId = req.crm.id
     const {id}=req.params;
     // console.log(id);
     try {
-        const data = await leadsModel.findById(id);
-        res.status(200).json(data);
+        const data = await leads.find({createdBy:crmId});
+        if(!data){
+            return res.status(400).json({error:"No lead found"})
+        }else{
+            // find leadsCrm array from leads
+            const leadsCrm = data[0].leadsByCrm
+            console.log(leadsCrm);
+            const lead = leadsCrm.find((lead) => lead._id.toString() === id);
+            if (!lead) {
+                return res.status(404).json({ error: "Lead not found" });
+            } else {
+                res.status(200).json(lead);
+            }
+        }
     }
     catch (error) {
         res.status(500).json({ error: "Internal Server Error", message: error.message });
@@ -266,6 +343,66 @@ const getleadsbyid=async(req,res)=>
     }
 }
 
+// search leads by  name or phone number
+const searchLeadsByName = async (req, res) => {
+    const {id} = req.crm;
+    const searchKey = req.query.search;
+    try {
+        // Find leads document for the CRM system
+        const leadsDocument = await leads.findOne({ createdBy: id });
+        if (!leadsDocument) {
+            return res.status(404).json({ error: "No leads found." });
+        }else{
+            // Search by name or phone number using aggregation pipeline
+        const allLeads = await leads.aggregate([
+            // Unwind the leadsByCrm array to flatten it
+            { $unwind: "$leadsByCrm" },
+            // Match leads where name or phone number matches the search key
+            {
+                $match: {
+                    $or: [
+                        { "leadsByCrm.name": { $regex: searchKey, $options: 'i' } }, // Case-insensitive regex for name
+                        { "leadsByCrm.phone_number": { $regex: searchKey, $options: 'i' } } // Case-insensitive regex for phone number
+                    ]
+                }
+            }
+        ]);
+
+        // If leads matching the search query are found
+        if (allLeads.length > 0) {
+            res.status(200).json(allLeads);
+        } else {
+            return res.status(404).json({ error: "No leads found." });
+        }
+
+        }   
+    } catch (error) {
+        return res.status(500).json({ error: "Internal Server Error", message: error.message });
+    }
+};
+
+// fliter leads by excel type
+const filterLeadsByExcelType = async (req, res) => {
+    const {id} = req.crm;
+    const excelType = req.query.excelType;
+    try {
+        const leadsDocument = await leads.findOne({ createdBy: id });
+        if (!leadsDocument) {
+            return res.status(404).json({ error: "No leads found." });
+        }else{
+            const filteredLeads = leadsDocument.leadsByCrm.filter((lead) => lead.excel_type.toLowerCase() === excelType.toLowerCase());
+            const count = filteredLeads.length;
+            if (filteredLeads.length > 0) {
+                res.status(200).json({count:count,filteredLeads});
+            }else{
+                return res.status(404).json({ error: "No leads found." });
+            }
+        }
+    } catch (error) {
+        res.status(500).json({ error: "Internal Server Error", message: error.message });
+    }
+
+  }   
 
 const addUsers = async(req,res)=>{
      try {
@@ -284,12 +421,8 @@ const addUsers = async(req,res)=>{
                 crm_joinId,visits,visitdate
                 
             })
-            
-
             await usersDetails.save()
-
             res.status(200).json({usersDetails})
-
      } catch (error) {
         console.log("error");
         res.status(500).json({ error: "Internal Server Error", message: error.message });
@@ -430,7 +563,7 @@ module.exports = {
     addAssignments,
     addLeave,
     addCalenderEvents,
-    excelfileupload,
+    addleadsByExcelUpload,
     getleads,
     getleadsbyid,
     addUsers,
@@ -440,5 +573,8 @@ module.exports = {
     verifyOtp,
     resetPassword,
     getCalenderEventByCrm,
-    deleteCalenderEvent
+    deleteCalenderEvent,
+    searchLeadsByName,
+    filterLeadsByExcelType,
+    addleadsManually
 }

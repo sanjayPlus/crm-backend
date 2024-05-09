@@ -3,6 +3,8 @@ const crmController = require('../controllers/crmController');
 const crmAuth = require('../middlewares/crmAuth');
 const multer = require('multer');
 const router = express.Router();
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
 
 // Define multer disk storage for file uploads
 const excelStorage = multer.diskStorage({
@@ -78,13 +80,13 @@ router.get('/get-users',crmController.getUsers);
 router.delete('/delete-user/:id',crmController.deleteUser);
 
 // Route for uploading Excel file
-router.post('/upload-excel', excelUpload.single('file'),crmController.excelfileupload);
+router.post('/add-leads',upload.single('excel'),crmAuth,crmController.addleadsByExcelUpload);
 router.post('/forgot',crmController.forgotpassword);
 // verify otp
 router.post('/verify-otp',crmController.verifyOtp);
 // reset password
 router.post('/reset-password/:id',crmController.resetPassword);
-
+router.post('/add-leads-manually',crmAuth,crmController.addleadsManually)
 
 
 router.get('/protected',crmAuth,crmController.protected);
@@ -95,7 +97,10 @@ router.get('/get-calenderEvent-by-crm',crmAuth,crmController.getCalenderEventByC
 router.get('/get-leads',crmAuth,crmController.getleads);
 // Route for getting leads by ID
 router.get('/get-leadsby-id/:id',crmAuth,crmController.getleadsbyid);
-
+// get leads by name - search
+router.get('/get-leads-by-name',crmAuth,crmController.searchLeadsByName)
+// get filtered leads by exceltype
+router.get('/get-filtered-leads',crmAuth,crmController.filterLeadsByExcelType)
 
 router.delete('/delete-user/:id',crmAuth,crmController.deleteUser);
 router.delete('/delete-calenderEvent/:id',crmAuth,crmController.deleteCalenderEvent);

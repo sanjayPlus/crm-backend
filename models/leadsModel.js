@@ -1,33 +1,22 @@
-const mongoose=require('mongoose')
+const mongoose = require('mongoose');
 
-const leadsSchema = new mongoose.Schema({
-    name: {
-        type: String
-    },
-    serial_number: {
-        type: String
-    },
-    phone_number: {
-        type: String
-    },
-    email: {
-        type: String
-    },
-    excel_type:{
-        type: String
-    },
-    city:{
-        type: String
-    },
-    uploaded_by:{
-        type: String
-    },
-    uploaded_crm_name:{
-        type: String
-    },
-    status:{
-        type: String
-    }
-})
+const leadSchema = new mongoose.Schema({
+    name: String,
+    serial_number: String,
+    phone_number: String,
+    email: String,
+    excel_type: String,
+    city: String,
+    uploaded_by: String,
+    uploaded_crm_name: String,
+    status: String
+});
 
-module.exports = mongoose.model('leads', leadsSchema)
+const leadSchemaByCrm = new mongoose.Schema({
+    createdBy: String,
+    leadsByCrm: [leadSchema] // Array of leads documents following the leadSchema structure
+});
+
+const leads = mongoose.model('leads', leadSchemaByCrm);
+
+module.exports = leads;

@@ -11,10 +11,11 @@ const crms = require('../models/crmModel');
 const assignment = require('../models/Assignments');
 const Leave = require('../models/Leave');
 const XLSX = require('xlsx');
-const leadsModel = require('../models/leadsModel');
+const socialMedia = require('../models/socialMedia');
 const Code = require('../models/Code');
 const crypto = require('crypto');
 const whatsapp = require('../models/Whatsapp');
+const leads = require('../models/leadsModel');
 const { assert } = require('console');
 // const QRCode = require('qrcode');
 // register
@@ -199,8 +200,7 @@ const updateCarousel = async (req, res) => {
         const carouselItem = await Carousel.findById(id);
         if (!carouselItem) {
             return res.status(404).json({ error: "Carousel not found" });
-        }
-
+        }   
         // Construct the path to the old image file
         const oldImageFilename = carouselItem.image;
         const filename = oldImageFilename.split('/').pop(); // Get the last part (filename)
@@ -388,6 +388,9 @@ const getCrmById = async (req, res) => {
 const updateCrm = async (req, res) => {
     try {
         const { id } = req.params;
+        const { name, email, phone1,phone2,whatsapp,instagram,address,guardian_name,guardian_phone,guardian,
+             dateofBirth, program, joingdate, salary,image,incentive,idno } = req.body;
+    
         const { name, email, phone1, phone2, whatsapp, instagram, address, guardian_name, guardian_phone, guardian,
             dateofBirth, program, joingdate, salary, image, incentive, idno } = req.body;
         const crm = await crms.findById(id);
@@ -417,6 +420,14 @@ const updateCrm = async (req, res) => {
             crm.address = address;
         }
 
+       // if(guardian_name&& guardian_phone){
+       //  crm.guardian[0].guardian_name = guardian_name;
+       //  crm.guardian[0].guardian_phone = guardian_phone;
+       // }
+     if(guardian){
+      crm.guardian = guardian
+     }
+
         // if(guardian_name&& guardian_phone){
         //  crm.guardian[0].guardian_name = guardian_name;
         //  crm.guardian[0].guardian_phone = guardian_phone;
@@ -425,6 +436,15 @@ const updateCrm = async (req, res) => {
             crm.guardian = guardian
         }
 
+    // if(guardian_name){
+    //     crm.guardian.guardian_name = guardian_name;
+    // }
+
+    // if(guardian_phone){
+    //     crm.guardian.guardian_phone = guardian_phone;
+    // }
+       
+        if(dateofBirth){
         // if(guardian_name){
         //     crm.guardian.guardian_name = guardian_name;
         // }
@@ -528,8 +548,8 @@ const deleteCrm = async (req, res) => {
 
 const getLeads = async (req, res) => {
     try {
-        const leads = await leadsModel.find();
-        res.status(200).json({ leads });
+        const allLeads = await leads.find();
+        res.status(200).json({ allLeads });
     } catch (error) {
         res.status(500).json({ error: "Internal Server Error" });
     }
@@ -539,7 +559,7 @@ const getLeads = async (req, res) => {
 // const deleteLeads = async (req, res) => {
 //     try {
 //         const { id } = req.params;
-//         const deletedleads = await leadsModel.findByIdAndDelete(id);
+//         const deletedleads = await leads.findByIdAndDelete(id);
 //         res.status(200).json({ message: "leads deleted successfully" });
 //     } catch (error) {
 //         res.status(500).json({ error: "Internal Server Error" });
@@ -547,6 +567,8 @@ const getLeads = async (req, res) => {
 // }
 
 const getleadstotalcount = async (req, res) => {
+    try{
+        const count = await leads.countDocuments();
     try {
         const count = await leadsModel.countDocuments();
         res.status(200).json({ count });
@@ -730,6 +752,71 @@ const deleteWhatsApp = async (req, res) => {
         res.status(500).json({ error: "Internal Server Error" });
     }
 }
+
+// add social-media
+const addSocialMediaLinks = async(req,res)=>{
+    const {website,instagram,facebook,whatsapp,youtube,email,location} = req.body;
+    try {  
+        const socialMedialinks = await socialMedia.create({
+            website,
+            instagram,
+            facebook,
+            whatsapp,
+            youtube,
+            email,
+            location
+        })
+        res.status(200).json({socialMedialinks})   
+    } catch (error) {
+        res.status(500).json({ error: "Internal Server Error", message: error.message });
+    }
+}
+
+// get social-media
+const getSocialMediaLinks = async(req,res) =>{
+    try {
+        const socialMedialinks = await socialMedia.find()
+        if(socialMedialinks){
+            res.status(200).json(socialMedialinks)
+        }else{
+            res.status(400).json({error:"Social media Links not found!!!"})
+        }
+    } catch (error) {
+        res.status(500).json({ error: "Internal Server Error", message: error.message });
+    }
+}
+
+// get social media link by id
+const getSocialMediaById = async(req,res) =>{
+    const {id} = req.params
+    try {
+        const data = await socialMedia.findOne({_id:id})
+        if(data){
+            return res.status(200).json(data)
+        }else{
+            res.status(401).json("Result no found")
+        }
+    } catch (error) {
+        res.status(500).json({ error: "Internal Server Error", message: error.message });
+
+    }
+}
+
+
+// update social media 
+const updateSocialMediaLinks = async(req,res) =>{
+    const {id} = req.params
+    const {website,instagram,facebook,whatsapp,youtube,email,location} = req.body
+    try {
+        const updatedLinks = await socialMedia.findByIdAndUpdate({_id:id},
+            {website,instagram,facebook,whatsapp,youtube,email,location},{new:true})
+            await updatedLinks.save()
+            res.status(200).json(updatedLinks)
+    } catch (error) {
+        res.status(500).json({ error: "Internal Server Error", message: error.message });
+    }
+}
+
 module.exports = {
     // register,
     adminLogin,
@@ -762,6 +849,10 @@ module.exports = {
     deleteWhatsApp,
     getAllAssignments,
     getleadstotalcount,
+    addSocialMediaLinks,
+    getSocialMediaLinks,
+    getSocialMediaById,
+    updateSocialMediaLinks  
     getEachCrmAssignments,
     getEachAssignments,
 
