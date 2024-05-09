@@ -16,7 +16,6 @@ const Code = require('../models/Code');
 const crypto = require('crypto');
 const whatsapp = require('../models/Whatsapp');
 const leads = require('../models/leadsModel');
-const { assert } = require('console');
 // const QRCode = require('qrcode');
 // register
 // const register = async (req, res) => {
@@ -388,11 +387,8 @@ const getCrmById = async (req, res) => {
 const updateCrm = async (req, res) => {
     try {
         const { id } = req.params;
-        const { name, email, phone1,phone2,whatsapp,instagram,address,guardian_name,guardian_phone,guardian,
-             dateofBirth, program, joingdate, salary,image,incentive,idno } = req.body;
-    
-        const { name, email, phone1, phone2, whatsapp, instagram, address, guardian_name, guardian_phone, guardian,
-            dateofBirth, program, joingdate, salary, image, incentive, idno } = req.body;
+        const { name, email, phone1, phone2, whatsapp, instagram, address, guardian,
+        dateofBirth, program, joingdate, salary, image, incentive, idno } = req.body;
         const crm = await crms.findById(id);
         if (!crm) {
             return res.status(404).json({ error: "Crm not found" });
@@ -427,31 +423,6 @@ const updateCrm = async (req, res) => {
      if(guardian){
       crm.guardian = guardian
      }
-
-        // if(guardian_name&& guardian_phone){
-        //  crm.guardian[0].guardian_name = guardian_name;
-        //  crm.guardian[0].guardian_phone = guardian_phone;
-        // }
-        if (guardian) {
-            crm.guardian = guardian
-        }
-
-    // if(guardian_name){
-    //     crm.guardian.guardian_name = guardian_name;
-    // }
-
-    // if(guardian_phone){
-    //     crm.guardian.guardian_phone = guardian_phone;
-    // }
-       
-        if(dateofBirth){
-        // if(guardian_name){
-        //     crm.guardian.guardian_name = guardian_name;
-        // }
-        // if(guardian_phone){
-        //     crm.guardian.guardian_phone = guardian_phone;
-        // }
-
         if (dateofBirth) {
             crm.dateofBirth = dateofBirth;
         }
@@ -476,8 +447,7 @@ const updateCrm = async (req, res) => {
         await crm.save();
         res.status(200).json({ message: "Crm updated successfully", crm });
     } catch (error) {
-        res.status(500).json({ error: "Internal Server Error", message: error.message });
-        console.error(error);
+        
     }
 }
 const deleteCrm = async (req, res) => {
@@ -567,8 +537,6 @@ const getLeads = async (req, res) => {
 // }
 
 const getleadstotalcount = async (req, res) => {
-    try{
-        const count = await leads.countDocuments();
     try {
         const count = await leadsModel.countDocuments();
         res.status(200).json({ count });
@@ -611,7 +579,6 @@ const getAllAssignments = async(req,res) =>{
 }
 
 const getEachCrmAssignments = async(req,res) =>{
-    
     try {
         const {id} = req.params
         const assignments = await crms.findById(id).select('tasks')
@@ -847,14 +814,12 @@ module.exports = {
     addwhatsApp,
     getWhatsapp,
     deleteWhatsApp,
-    getAllAssignments,
     getleadstotalcount,
     addSocialMediaLinks,
     getSocialMediaLinks,
     getSocialMediaById,
-    updateSocialMediaLinks  
+    updateSocialMediaLinks,
+    getAllAssignments,
     getEachCrmAssignments,
-    getEachAssignments,
-
-
+    getEachAssignments
 }

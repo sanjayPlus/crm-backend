@@ -10,9 +10,7 @@ const catchTime = 600;
 const XLSX = require('xlsx');
 const fs=require('fs')
 const nodemailer = require('nodemailer');
-const { query } = require('express');
 const leads = require('../models/leadsModel');
-const { log } = require('console');
 
 
 // register
