@@ -32,12 +32,6 @@ const crmSchema = new mongoose.Schema({
     address:{
         type:String
     },
-
-    dateofBirth: {
-        type: String,
-        required: true
-    },
-    program: Array,
     guardian: [{
         guardian_name: {
             type: String,
@@ -48,9 +42,27 @@ const crmSchema = new mongoose.Schema({
             required: true
         }
     }],
+    dateofBirth: {
+        type: String,
+        required: true
+    },
+    program:{
+        type:Array
+    } ,
     joingdate: {
         type: String,
         required: true
+    },
+    salary: {
+        type: String,
+        required: true
+    },
+    image:{
+        type:String,
+        required:true
+    },
+    idno:{
+        type:String
     },
     attendence: [{
         date: {
@@ -79,10 +91,6 @@ const crmSchema = new mongoose.Schema({
             required: true
         },
     }],
-    salary: {
-        type: String,
-        required: true
-    },
     incentive: [{
         date: {
             type: String,
@@ -136,8 +144,21 @@ const crmSchema = new mongoose.Schema({
     }],
     otp:{
         type:Number
-    }
+    },
+    documents:[
+        {
+            offerLetter:{
+                type:String
+            },
+            provisionalCertificate:{
+                type:String
+            }
 
+        }
+    ],
+    assets:{
+        type:Array
+    }
 })
 
 const crms = mongoose.model('crms', crmSchema)

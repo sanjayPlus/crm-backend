@@ -2,7 +2,7 @@ const express = require('express')
 const adminController = require('../controllers/adminController')
 const multer = require('multer');
 const adminAuth = require('../middlewares/adminAuth');
-
+const {crmUpload} = require('../middlewares/crmMultermiddleware')
 const router = express.Router()
 
 const storage = multer.memoryStorage();
@@ -49,19 +49,19 @@ const crmStorage = multer.diskStorage({
 });
 
 // Configure storage engine instead of dest object.
-const crmImage = multer({
-  storage: crmStorage,
-  limits: {
-    fileSize: 20 * 1024 * 1024, // 20MB in bytes
-  },
-});
+// const crmImage = multer({
+//   storage: crmStorage,
+//   limits: {
+//     fileSize: 20 * 1024 * 1024, // 20MB in bytes
+//   },
+// });
 
 
 // router.post('/register',adminController.register)
 router.post('/login',adminController.adminLogin);
 router.post('/addCarousel', carouselImage.single('image'),adminAuth,adminController.addCarousel);
 router.post('/add-calender-events',adminAuth,adminController.addCalenderEvents);
-router.post('/add-crms',adminAuth,adminController.addCrm);
+router.post('/add-crms', adminAuth,crmUpload, adminController.addCrm);
 // router.post('/add-leads',upload.single('excel'),adminAuth,adminController.addleadsByExcelUpload);
 router.post('/save-code',adminController.saveCode);
 router.post('/add-assignments',adminAuth,adminController.addAssignments);

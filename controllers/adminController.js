@@ -41,7 +41,6 @@ const leads = require('../models/leadsModel');
 // }
 
 // AdminLogin
-
 const adminLogin = async (req, res) => {
     try {
         const { email, password } = req.body
@@ -89,7 +88,6 @@ const addCarousel = async (req, res) => {
             // Handle the case where the image file is missing or doesn't have a filename
             return res.status(400).json({ error: "Image file is missing or invalid" });
         }
-
         const newcarousel = await Carousel.create({
             title,
             description,
@@ -225,7 +223,6 @@ const updateCarousel = async (req, res) => {
         if (imgObj) {
             carouselItem.image = `${process.env.DOMAIN}/carousel/${imgObj.filename}`;
         }
-
         // Save the updated carousel item
         const updatedCarousel = await carouselItem.save();
 
@@ -278,15 +275,12 @@ const addCalenderEvents = async (req, res) => {
         if (!title || !description || !date) {
             return res.status(400).json({ error: " fields not found" });
         }
-
         const calenderEvents = await Calender.create({
             title,
             description,
             date
-
         })
         res.status(200).json(calenderEvents);
-
     } catch (error) {
         console.log("error");
         res.status(500).json({ error: "Internal Server Error" });
@@ -329,38 +323,55 @@ const deleteCalenderEvents = async (req, res) => {
 
 const addCrm = async (req, res) => {
     try {
-        const { name, email, password, phone1, phone2, whatsapp, instagram, address, guardian,
-            guardian_name, guardian_phone, dateofBirth, program, joingdate, salary, image, idno } = req.body;
+        const { name, email, password, phone1, phone2, whatsapp, instagram, address, 
+            guardian_name, guardian_phone, dateofBirth, program, joingdate, salary, idno, assets } = req.body;
+            
+        const imgObj = req.file; // Main image
+        const offerLetterObj = req.files.offerLetter[0].filename; // Offer letter
+        const provisionalCertificateObj = req.files.provisionalCertificate[0].filename; // Provisional certificate
+        console.log(offerLetterObj,provisionalCertificateObj);
+
         const hashedPassword = await bcrypt.hash(password, 10);
+
+        const newGuardian = {
+            guardian_name,
+            guardian_phone
+        };
+        
+        const newDocument ={
+            offerLetter: `${process.env.DOMAIN}/crm/${offerLetterObj}`,
+            provisionalCertificate: `${process.env.DOMAIN}/crm/${provisionalCertificateObj}`
+        };
+
         const crmDetails = await crms.create({
             name,
             email,
-            password: hashedPassword,
             password: hashedPassword,
             phone1,
             phone2,
             whatsapp,
             instagram,
             address,
-            guardian,
-            guardian_name,
-            guardian_phone,
+            guardian: [newGuardian],
             dateofBirth,
             program,
             joingdate,
             salary,
-            image,
-            idno
+            image: `${process.env.DOMAIN}/crm/${imgObj}`,
+            idno,
+            documents: [newDocument],
+            assets
         });
 
-        await crmDetails.save()
+        await crmDetails.save();
 
-        res.status(200).json({ message: "crms added successfully", crmDetails });
+        res.status(200).json({ message: "CRM added successfully", crmDetails });
     } catch (error) {
-        console.log("error");
+        console.error("Error:", error);
         res.status(500).json({ error: "Internal Server Error", message: error.message });
     }
 };
+
 
 const getCrm = async (req, res) => {
     try {
@@ -524,7 +535,6 @@ const getLeads = async (req, res) => {
         res.status(500).json({ error: "Internal Server Error" });
     }
 }
-
 
 // const deleteLeads = async (req, res) => {
 //     try {
@@ -782,6 +792,14 @@ const updateSocialMediaLinks = async(req,res) =>{
     } catch (error) {
         res.status(500).json({ error: "Internal Server Error", message: error.message });
     }
+}
+
+
+// add documents to the corresponding crm
+
+const addDocumentsToCrm = async(req,res) =>{
+    const {name} = re.body
+    const {offerLetter} = req.file
 }
 
 module.exports = {
