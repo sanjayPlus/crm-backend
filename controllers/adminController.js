@@ -327,8 +327,8 @@ const addCrm = async (req, res) => {
             guardian_name, guardian_phone, dateofBirth, program, joingdate, salary, idno, assets } = req.body;
             
         const imgObj = req.file; // Main image
-        const offerLetterObj = req.files.offerLetter[0].filename; // Offer letter
-        const provisionalCertificateObj = req.files.provisionalCertificate[0].filename; // Provisional certificate
+       const offerLetterObj = req.files.offerLetter ? req.files.offerLetter[0].filename : null; // Offer letter
+        const provisionalCertificateObj = req.files.provisionalCertificate ? req.files.provisionalCertificate[0].filename : null;
         console.log(offerLetterObj,provisionalCertificateObj);
 
         const hashedPassword = await bcrypt.hash(password, 10);
